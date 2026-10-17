@@ -9,6 +9,7 @@
 #  Add a new tool by adding a new line. No code changes needed.
 # ============================================================
 
+PDF Super Edit | multi-pdf-super-edit.html | Edit and compare multiple pdfs at a time | file-pdf file-pdf
 EXIF Remover | exif-remover.html | Strip location and camera data from photos | shield
 Image Resizer | imate-resizer.html | Resize and compress images in your browser | image
 OCR | ocr.html | Extract text from images and scans | scan-text
