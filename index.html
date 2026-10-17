@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
 <title>Free Online PDF Editor – Edit PDF Files Quickly | editpdf.ink</title>
 <description name="description" content="Edit, annotate, merge, and convert PDF documents easily online for free with editpdf.ink. No installation required.">
-<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SuperSimpler – PDF Editor</title>
@@ -15,8 +15,8 @@
 *{box-sizing:border-box}
 i{font-style:normal;display:inline-flex;align-items:center;justify-content:center}
 i svg{width:1em;height:1em;display:block}
-html,body{height:100%;margin:0}
-body{font:500 13px/1.4 Manrope,system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;overflow:hidden}
+html,body{height:100%;margin:0;overflow:hidden}
+body{font:500 13px/1.4 Manrope,system-ui,sans-serif;background:var(--bg);color:var(--text);position:fixed;inset:0;display:flex;flex-direction:column;overflow:hidden}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none}
 button:focus-visible,input:focus-visible,label:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
@@ -46,11 +46,11 @@ header{height:56px;display:flex;align-items:center;gap:14px;padding:0 16px;backg
 input[type=color]{width:28px;height:28px;border:2px solid var(--line);border-radius:50%;padding:0;background:none;cursor:pointer}
 input[type=color]::-webkit-color-swatch-wrapper{padding:0}input[type=color]::-webkit-color-swatch{border:0;border-radius:50%}
 input[type=range]{accent-color:var(--acc);width:84px}
-main{flex:1;display:flex;min-height:0}
+main{flex:1;display:flex;min-height:0;overflow:hidden}
 #rail{width:68px;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px;flex:none}
 .rb{width:56px;padding:9px 0 7px;border-radius:10px;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;font-weight:600}
 .rb i{font-size:17px}.rb:hover,.rb.on{background:var(--raise);color:var(--text)}.rb.on i{color:var(--acc)}
-#stage{flex:1;overflow:auto;background:var(--stage);padding:28px;position:relative}
+#stage{flex:1;min-width:0;min-height:0;overflow:auto;overscroll-behavior:contain;background:var(--stage);padding:28px;position:relative}
 #pages{display:flex;flex-direction:column;align-items:center;width:max-content;min-width:100%;gap:22px}
 .page{position:relative;background:#fff;box-shadow:0 1px 2px #0006,0 14px 38px -8px #000a;flex:none}
 .page canvas.bg{position:absolute;left:0;top:0}
@@ -61,7 +61,7 @@ main{flex:1;display:flex;min-height:0}
 .drop i{font-size:34px;color:var(--acc);margin-bottom:14px}
 .drop h2{margin:0 0 6px;font-size:21px;letter-spacing:-.02em}
 .drop p{margin:0 0 22px;color:var(--mute)}
-aside{width:280px;background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;flex:none}
+aside{min-height:0;overflow:hidden;width:280px;background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;flex:none}
 .tabs{display:flex;border-bottom:1px solid var(--line)}
 .tab{flex:1;padding:13px 0;font-weight:700;color:var(--mute);border-bottom:2px solid transparent}
 .tab.on{color:var(--text);border-color:var(--acc)}
@@ -91,12 +91,33 @@ aside{width:280px;background:var(--panel);border-left:1px solid var(--line);disp
 #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--raise);border:1px solid var(--line);padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s;z-index:60;box-shadow:0 10px 30px #0008}
 #toast.show{opacity:1;transform:translateX(-50%)}
 #busy{position:fixed;inset:0;background:#000a;display:grid;place-items:center;z-index:70;font-weight:700}
-::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#303641;border-radius:6px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar{width:13px;height:13px}::-webkit-scrollbar-thumb{background:#5b6474;border-radius:8px;border:3px solid #181b21}::-webkit-scrollbar-thumb:hover{background:#7a8496}::-webkit-scrollbar-track{background:#181b21}::-webkit-scrollbar-corner{background:#181b21}
+@supports not selector(::-webkit-scrollbar){*{scrollbar-color:#5b6474 #181b21}}
+#stage{outline:none;overflow-y:scroll;overflow-x:auto}
+#pgIn{width:40px;text-align:center;background:var(--raise);border:1px solid var(--line);border-radius:7px;padding:5px 2px}
+.hl{position:absolute;inset:0;pointer-events:none;z-index:5}
+.hl b{position:absolute;background:rgba(255,214,0,.42);mix-blend-mode:multiply;border-radius:2px}
+.hl b.cur{background:rgba(255,106,61,.5);outline:2px solid var(--acc)}
+.sbox{position:relative}.sbox i{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mute)}
+.sbox input,.txt{width:100%;background:var(--raise);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+.sbox input{padding-left:34px}
+.sbar{display:flex;align-items:center;gap:2px;margin:8px 0;color:var(--mute);font-weight:600;font-size:12px;min-height:34px}
+details.adv{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px}
+details.adv summary{cursor:pointer;font-weight:700;margin-bottom:8px}
+.chk{display:flex;align-items:center;gap:9px;padding:5px 0;cursor:pointer}
+.chk input{accent-color:var(--acc);width:15px;height:15px}
+.err{color:#ff7b7b;font-size:12px;margin-bottom:8px}
+.res{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;color:var(--mute);font-size:12px;margin-bottom:2px;overflow-wrap:anywhere}
+.res small{display:block;color:var(--text);font-weight:700;font-size:10.5px;margin-bottom:2px}
+.res mark{background:var(--accbg);color:var(--acc);font-weight:700;border-radius:3px}
+.res:hover,.res.on{background:var(--raise)}
+@media(max-width:1180px){.logo span{display:none}#fname{width:150px}}
 @media(max-width:860px){aside{display:none}#rail{width:54px}#fname{width:140px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 <!-- ===== GOOGLE ADSENSE (1/3): replace ca-pub-XXXXXXXXXXXXXXXX with your publisher ID ===== -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3793154131362627" crossorigin="anonymous"></script></head>
+</head>
 <body>
 <header>
   <div class="logo"><i class="fa-solid fa-file-pdf"></i><span>SuperSimpler</span></div>
@@ -110,7 +131,10 @@ aside{width:280px;background:var(--panel);border-left:1px solid var(--line);disp
     <span class="pill" id="zlab">100%</span>
     <button class="ib" id="zin" title="Zoom in" aria-label="Zoom in"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
     <button class="ib" id="zfit" title="Fit width" aria-label="Fit width"><i class="fa-solid fa-arrows-left-right-to-line"></i></button>
-    <span class="pill" id="pnum">–</span>
+    <div class="vr" style="margin:0 6px"></div>
+    <button class="ib" id="pPrev" title="Previous page (PageUp)" aria-label="Previous page"><i class="fa-solid fa-chevron-up"></i></button>
+    <input id="pgIn" value="–" inputmode="numeric" aria-label="Go to page"><span class="pill" id="pTot" style="min-width:34px">/ –</span>
+    <button class="ib" id="pNext" title="Next page (PageDown)" aria-label="Next page"><i class="fa-solid fa-chevron-down"></i></button>
   </div>
   <div class="sp"></div>
   <button class="btn" id="open" title="Open PDF (Ctrl+O)"><i class="fa-solid fa-folder-open"></i>Open</button>
@@ -131,11 +155,12 @@ aside{width:280px;background:var(--panel);border-left:1px solid var(--line);disp
   <nav id="rail">
     <button class="rb on" data-r="edit"><i class="fa-solid fa-pen-to-square"></i>Edit</button>
     <button class="rb" data-r="pages"><i class="fa-solid fa-table-cells-large"></i>Pages</button>
+    <button class="rb" data-r="search"><i class="fa-solid fa-magnifying-glass"></i>Search</button>
     <button class="rb" data-r="sign"><i class="fa-solid fa-signature"></i>Sign</button>
     <button class="rb" data-r="export"><i class="fa-solid fa-file-export"></i>Export</button>
   </nav>
 
-  <div id="stage">
+  <div id="stage" tabindex="0">
     <div id="pages"></div>
     <div id="empty">
       <div class="drop" id="drop">
@@ -155,8 +180,22 @@ aside{width:280px;background:var(--panel);border-left:1px solid var(--line);disp
   </div>
 
   <aside>
-    <div class="tabs"><button class="tab on" id="tPages">Pages</button><button class="tab" id="tProps">Properties</button></div>
+    <div class="tabs"><button class="tab on" id="tPages">Pages</button><button class="tab" id="tSearch">Search</button><button class="tab" id="tProps">Properties</button></div>
     <div class="pane" id="pPages"><div class="note">No pages yet.</div></div>
+    <div class="pane hide" id="pSearch">
+      <div class="sbox"><i class="fa-solid fa-magnifying-glass"></i><input id="sq" type="search" placeholder="Search in document" autocomplete="off" aria-label="Search in document"></div>
+      <div class="sbar"><span id="sCnt"></span><span class="sp"></span><button class="ib" id="sPrev" aria-label="Previous match"><i class="fa-solid fa-chevron-up"></i></button><button class="ib" id="sNext" aria-label="Next match"><i class="fa-solid fa-chevron-down"></i></button></div>
+      <details class="adv" open><summary>Advanced options</summary>
+        <label class="chk"><input type="checkbox" id="sCase">Match case</label>
+        <label class="chk"><input type="checkbox" id="sWw">Whole words only</label>
+        <label class="chk"><input type="checkbox" id="sRx">Regular expression</label>
+        <label class="chk"><input type="checkbox" id="sCur">Current page only</label>
+        <div class="f" style="margin:8px 0 0"><label>Page range</label><input id="sRng" class="txt" placeholder="e.g. 1-3, 5" aria-label="Page range"></div>
+        <div class="row2" style="margin-top:12px"><button class="btn" id="sHl">Highlight all</button><button class="btn" id="sRd">Redact all</button></div>
+      </details>
+      <div id="sErr" class="err"></div>
+      <div id="sList"></div>
+    </div>
     <div class="pane hide" id="pProps">
       <div class="note" id="noSel">Select an object on the page to change its look.</div>
       <div id="sel" class="hide">
@@ -260,13 +299,13 @@ async function openFile(file){
     const buf=await file.arrayBuffer();
     S.bytes=new Uint8Array(buf.slice(0));
     S.pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0))}).promise;
-    S.pages.forEach(p=>p.fc.dispose());S.pages=[];S.cur=0;
+    S.pages.forEach(p=>p.fc.dispose());S.pages=[];S.cur=0;S.matches=[];S.mi=-1;renderResults();
     $('pages').innerHTML='';$('pPages').innerHTML='';
     S.name=file.name;$('fname').value=file.name;$('fname').disabled=false;$('empty').classList.add('hide');
     const first=await S.pdf.getPage(1);
     S.zoom=Math.min(1.5,Math.max(.5,($('stage').clientWidth-70)/first.getViewport({scale:1}).width));
     for(let i=1;i<=S.pdf.numPages;i++)await createPage(i);
-    updZoom();updNav();toast(`Opened ${file.name} · ${S.pdf.numPages} page${S.pdf.numPages>1?'s':''}`);
+    updZoom();updNav();$('stage').focus({preventScroll:true});toast(`Opened ${file.name} · ${S.pdf.numPages} page${S.pdf.numPages>1?'s':''}`);
   }catch(err){console.error(err);toast('Could not open that file. Is it a valid PDF?');$('empty').classList.toggle('hide',!!S.pages.length)}
   busy();
 }
@@ -277,9 +316,10 @@ async function createPage(num){
   const bg=document.createElement('canvas');bg.className='bg';
   const ov=document.createElement('canvas');div.append(bg,ov);$('pages').appendChild(div);
   const fc=new fabric.Canvas(ov,{width:vp.width*S.zoom,height:vp.height*S.zoom,preserveObjectStacking:true,selection:true});
+  const hl=document.createElement('div');hl.className='hl';div.appendChild(hl);
   const tc=await pgj.getTextContent();
   const items=tc.items.filter(i=>i.str.trim()).map(i=>{const t=pdfjsLib.Util.transform(vp.transform,i.transform);return{s:i.str,x:t[4],y:t[5],w:i.width,fs:Math.hypot(t[2],t[3])||12}});
-  const p={num,pgj,w:vp.width,h:vp.height,div,bg,fc,items,hist:[],hi:-1,deleted:false,idx:S.pages.length};
+  const p={hl,num,pgj,w:vp.width,h:vp.height,div,bg,fc,items,hist:[],hi:-1,deleted:false,idx:S.pages.length};
   S.pages.push(p);
   fc.setZoom(S.zoom);
   fc.toJSON2=()=>JSON.stringify(fc.toJSON(['customType']));
@@ -316,7 +356,7 @@ function delPage(p){
 }
 function updNav(){
   const l=live(),p=pg();
-  $('pnum').textContent=p?`${l.indexOf(p)+1} / ${l.length}`:'–';
+  if(document.activeElement!==$('pgIn'))$('pgIn').value=p?l.indexOf(p)+1:'–';$('pTot').textContent='/ '+(p?l.length:'–');
   S.pages.forEach(q=>q.th.classList.toggle('on',q===p));
   $('undo').disabled=!p||p.hi<1;$('redo').disabled=!p||p.hi>=p.hist.length-1;
 }
@@ -324,7 +364,7 @@ $('stage').addEventListener('scroll',()=>{const r=$('stage').getBoundingClientRe
   for(const p of live()){const b=p.div.getBoundingClientRect();if(b.top<=mid&&b.bottom>=mid){if(S.cur!==p.idx){S.cur=p.idx;updNav()}break}}});
 
 // ---------- zoom ----------
-async function setZoom(z){if(!S.pages.length)return;S.zoom=Math.min(3,Math.max(.25,z));updZoom();for(const p of S.pages)await renderPage(p)}
+async function setZoom(z){if(!S.pages.length)return;S.zoom=Math.min(3,Math.max(.25,z));updZoom();for(const p of S.pages)await renderPage(p);renderHL()}
 function updZoom(){$('zlab').textContent=Math.round(S.zoom*100)+'%'}
 $('zin').onclick=()=>setZoom(S.zoom+.15);$('zout').onclick=()=>setZoom(S.zoom-.15);
 $('zfit').onclick=()=>pg()&&setZoom(($('stage').clientWidth-70)/pg().w);
@@ -423,8 +463,8 @@ function delSel(){const p=pg();if(!p)return;const fc=p.fc,a=fc.getActiveObjects(
 $('del').onclick=delSel;
 $('fwd').onclick=()=>{const o=act();if(o){pg().fc.bringForward(o);pg().fc.fire('object:modified')}};
 $('bwd').onclick=()=>{const o=act();if(o){pg().fc.sendBackwards(o);pg().fc.fire('object:modified')}};
-function panelTab(t){$('tPages').classList.toggle('on',t==='p');$('tProps').classList.toggle('on',t==='o');$('pPages').classList.toggle('hide',t!=='p');$('pProps').classList.toggle('hide',t!=='o')}
-$('tPages').onclick=()=>panelTab('p');$('tProps').onclick=()=>panelTab('o');
+function panelTab(t){[['p','tPages','pPages'],['s','tSearch','pSearch'],['o','tProps','pProps']].forEach(([k,a,b])=>{$(a).classList.toggle('on',t===k);$(b).classList.toggle('hide',t!==k)})}
+$('tPages').onclick=()=>panelTab('p');$('tSearch').onclick=()=>{panelTab('s');$('sq').focus()};$('tProps').onclick=()=>panelTab('o');
 
 // ---------- insert: image, stamps, signature, fields ----------
 function place(obj){const p=pg();if(!p)return;const fc=p.fc;obj.set({left:p.w*.3,top:Math.min(p.h*.2,300)});fc.add(obj);fc.setActiveObject(obj);fc.requestRenderAll();p.div.scrollIntoView({block:'nearest'});panelTab('o')}
@@ -491,7 +531,7 @@ document.querySelectorAll('.rb').forEach(b=>b.onclick=()=>{
   const r=b.dataset.r;
   if(r==='sign'||r==='export'){if(!S.pages.length)return toast('Open a PDF first');openM(r==='sign'?'mIns':'mExp');return}
   document.querySelectorAll('.rb').forEach(x=>x.classList.toggle('on',x===b));
-  panelTab(r==='pages'?'p':'o');if(r==='edit')setTool('select');
+  panelTab(r==='pages'?'p':r==='search'?'s':'o');if(r==='edit')setTool('select');if(r==='search')$('sq').focus();
 });
 
 // ---------- keyboard ----------
@@ -499,8 +539,13 @@ window.addEventListener('keydown',e=>{
   const m=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
   if(m&&k==='s'){e.preventDefault();savePdf();return}
   if(m&&k==='o'){e.preventDefault();$('pdfIn').click();return}
+  if(m&&k==='f'){e.preventDefault();panelTab('s');$('sq').focus();$('sq').select();return}
   const o=act();if(o&&o.isEditing)return;
   if(/INPUT|TEXTAREA/.test(document.activeElement.tagName)&&document.activeElement.type!=='range'&&document.activeElement.type!=='color')return;
+  if(k==='pagedown'){e.preventDefault();goPage(ci()+2);return}
+  if(k==='pageup'){e.preventDefault();goPage(ci());return}
+  if(k==='home'){e.preventDefault();goPage(1);return}
+  if(k==='end'){e.preventDefault();goPage(1e9);return}
   if(m&&k==='z'){e.preventDefault();(e.shiftKey?$('redo'):$('undo')).click();return}
   if(m&&k==='y'){e.preventDefault();$('redo').click();return}
   if(k==='delete'||k==='backspace'){if(o){e.preventDefault();delSel()}return}
@@ -521,11 +566,113 @@ const P={'file-pdf':'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z 
 'strikethrough':'M16 4H9a3 3 0 0 0-2.8 4 M14 12a4 4 0 0 1 0 8H6 M4 12h16','square':'M4 4h16v16H4z','vector-square':'M3 6h18v12H3z','circle':'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z',
 'minus':'M5 19 19 5','arrow-right-long':'M5 12h14 M13 6l6 6-6 6','pen':'M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5Z',
 'eraser':'m7 21-4.3-4.3a1 1 0 0 1 0-1.4l9.6-9.6a1 1 0 0 1 1.4 0l5.6 5.6a1 1 0 0 1 0 1.4L13 21 M22 21H7','image':'M3 3h18v18H3z M9 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3 M21 15l-5-5L5 21',
-'stamp':'M5 22h14 M6 18h12v-1.5c0-2-3-3-3-6a3 3 0 0 0-6 0c0 3-3 4-3 6Z','droplet':'M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z','trash':'M3 6h18 M8 6V4h8v2 M19 6l-1 14H6L5 6 M10 11v6 M14 11v6',
+'stamp':'M5 22h14 M6 18h12v-1.5c0-2-3-3-3-6a3 3 0 0 0-6 0c0 3-3 4-3 6Z','droplet':'M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z','magnifying-glass':'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z M21 21l-4.3-4.3','chevron-up':'m18 15-6-6-6 6','chevron-down':'m6 9 6 6 6-6','trash':'M3 6h18 M8 6V4h8v2 M19 6l-1 14H6L5 6 M10 11v6 M14 11v6',
 'xmark':'M18 6 6 18 M6 6l12 12','check':'M20 6 9 17l-5-5','calendar':'M3 5h18v16H3z M3 10h18 M8 3v4 M16 3v4'};
 function hydrate(){document.querySelectorAll('i[class*="fa-"]').forEach(el=>{const n=[...el.classList].map(c=>c.replace(/^fa-/,'')).find(c=>P[c]);if(!n)return;
   el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+P[n]+'"/></svg>';el.removeAttribute('class')})}
 hydrate();new MutationObserver(hydrate).observe(document.body,{childList:true,subtree:true});
+
+// ---------- page navigation ----------
+const ci=()=>live().indexOf(pg());
+function goPage(n){const l=live();if(!l.length)return;const p=l[Math.min(l.length,Math.max(1,n))-1];S.cur=p.idx;p.div.scrollIntoView({behavior:'smooth',block:'start'});updNav()}
+$('pPrev').onclick=()=>goPage(ci());$('pNext').onclick=()=>goPage(ci()+2);
+$('pgIn').onfocus=e=>e.target.select();$('pgIn').onblur=updNav;
+$('pgIn').onkeydown=e=>{if(e.key==='Enter'){goPage(parseInt(e.target.value)||1);e.target.blur();$('stage').focus({preventScroll:true})}e.stopPropagation()};
+$('stage').addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefault();setZoom(S.zoom*(e.deltaY<0?1.1:.9))}},{passive:false});
+
+// ---------- search ----------
+S.matches=[];S.mi=-1;
+const mc=document.createElement('canvas').getContext('2d');
+function pageText(p){
+  if(p.stext!==undefined)return;
+  let t='';p.smap=[];
+  p.items.forEach(it=>{if(t)t+=' ';p.smap.push({a:t.length,b:t.length+it.s.length,it});t+=it.s});
+  p.stext=t;
+}
+function subRect(it,i0,i1){
+  mc.font=`${it.fs}px Helvetica, Arial, sans-serif`;
+  const tot=mc.measureText(it.s).width||1,a=mc.measureText(it.s.slice(0,i0)).width/tot,b=mc.measureText(it.s.slice(0,i1)).width/tot;
+  return{x:it.x+it.w*a,y:it.y-it.fs*.95,w:Math.max(2,it.w*(b-a)),h:it.fs*1.2};
+}
+function buildRx(){
+  const q=$('sq').value;if(!q)return null;
+  let src=$('sRx').checked?q:q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  if($('sWw').checked)src='\\b(?:'+src+')\\b';
+  return new RegExp(src,'g'+($('sCase').checked?'':'i'));
+}
+function parseRange(v,n){
+  if(!v.trim())return null;const set=new Set();
+  v.split(',').forEach(x=>{const m=x.trim().match(/^(\d+)(?:\s*-\s*(\d+))?$/);if(!m)return;let a=+m[1],b=+(m[2]||m[1]);if(a>b)[a,b]=[b,a];for(let i=Math.max(1,a);i<=Math.min(n,b);i++)set.add(i)});
+  return set;
+}
+function clearHL(){S.pages.forEach(p=>p.hl.innerHTML='')}
+function renderHL(){
+  clearHL();const z=S.zoom;
+  S.matches.forEach((m,i)=>{m.els=m.rects.map(r=>{const b=document.createElement('b');
+    b.style.cssText=`left:${r.x*z}px;top:${r.y*z}px;width:${r.w*z}px;height:${r.h*z}px`;if(i===S.mi)b.className='cur';m.p.hl.appendChild(b);return b})});
+}
+function runSearch(){
+  clearHL();S.matches=[];S.mi=-1;$('sErr').textContent='';
+  if(!S.pages.length)return renderResults();
+  let rx;try{rx=buildRx()}catch(e){$('sErr').textContent='That regular expression isn’t valid.';return renderResults()}
+  if(!rx)return renderResults();
+  const rng=parseRange($('sRng').value,S.pdf.numPages),only=$('sCur').checked;
+  for(const p of live()){
+    if(only&&p!==pg())continue;if(rng&&!rng.has(p.num))continue;
+    pageText(p);let m;rx.lastIndex=0;
+    while((m=rx.exec(p.stext))&&S.matches.length<2000){
+      if(!m[0].length){rx.lastIndex++;continue}
+      const a=m.index,b=a+m[0].length,rects=[];
+      p.smap.forEach(e=>{const x=Math.max(a,e.a),y=Math.min(b,e.b);if(x<y)rects.push(subRect(e.it,x-e.a,y-e.a))});
+      if(rects.length)S.matches.push({p,rects,snip:[p.stext.slice(Math.max(0,a-26),a),m[0],p.stext.slice(b,b+34)]});
+    }
+  }
+  S.mi=S.matches.length?0:-1;renderHL();renderResults();if(S.mi>=0)gotoMatch(0);
+}
+function renderResults(){
+  const L=$('sList'),n=S.matches.length,esc=t=>t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  L.innerHTML='';
+  if(!S.pages.length){$('sCnt').textContent='';L.innerHTML='<div class="note">Open a PDF to search its text.</div>';return}
+  if(!n){
+    const q=$('sq').value&&!$('sErr').textContent;
+    $('sCnt').textContent=q?'No matches':'';
+    if(q&&S.pages.every(p=>!p.items.length))L.innerHTML='<div class="note">This PDF has no searchable text. It may be a scan.</div>';
+    return;
+  }
+  $('sCnt').textContent=`${S.mi+1} of ${n}${n>=2000?'+':''}`;
+  S.matches.slice(0,300).forEach((m,i)=>{
+    const d=document.createElement('button');d.className='res'+(i===S.mi?' on':'');
+    d.innerHTML=`<small>Page ${m.p.num}</small>${esc(m.snip[0])}<mark>${esc(m.snip[1])}</mark>${esc(m.snip[2])}`;
+    d.onclick=()=>gotoMatch(i);L.appendChild(d);
+  });
+  if(n>300)L.insertAdjacentHTML('beforeend','<div class="note">Showing the first 300 results.</div>');
+}
+function gotoMatch(i){
+  const n=S.matches.length;if(!n)return;
+  S.mi=(i+n)%n;
+  S.matches.forEach((m,k)=>m.els&&m.els.forEach(b=>b.classList.toggle('cur',k===S.mi)));
+  const m=S.matches[S.mi];S.cur=m.p.idx;updNav();
+  m.els[0].scrollIntoView({block:'center',inline:'nearest',behavior:'smooth'});
+  $('sCnt').textContent=`${S.mi+1} of ${n}${n>=2000?'+':''}`;
+  document.querySelectorAll('.res').forEach((e,k)=>e.classList.toggle('on',k===S.mi));
+}
+function markAll(kind){
+  if(!S.matches.length)return toast('Search for something first');
+  const by=new Map();S.matches.forEach(m=>{if(!by.has(m.p))by.set(m.p,[]);by.get(m.p).push(...m.rects)});
+  by.forEach((rs,p)=>{
+    S.restoring=true;
+    rs.forEach(r=>{const o=new fabric.Rect({left:r.x-1,top:r.y,width:r.w+2,height:r.h,fill:kind==='redact'?'#000':'#ffe14d',opacity:kind==='redact'?1:.45});if(kind==='redact')o.customType='redaction';p.fc.add(o)});
+    S.restoring=false;p.hist=p.hist.slice(0,p.hi+1);p.hist.push(p.fc.toJSON2());p.hi=p.hist.length-1;p.fc.requestRenderAll();
+  });
+  updNav();toast(`${kind==='redact'?'Redacted':'Highlighted'} ${S.matches.length} match${S.matches.length>1?'es':''}`);
+}
+let sT;$('sq').oninput=()=>{clearTimeout(sT);sT=setTimeout(runSearch,200)};
+['sCase','sWw','sRx','sCur'].forEach(id=>$(id).onchange=runSearch);$('sRng').oninput=()=>{clearTimeout(sT);sT=setTimeout(runSearch,300)};
+$('sq').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();gotoMatch(S.mi+(e.shiftKey?-1:1))}e.stopPropagation()};
+$('sRng').onkeydown=e=>e.stopPropagation();
+$('sPrev').onclick=()=>gotoMatch(S.mi-1);$('sNext').onclick=()=>gotoMatch(S.mi+1);
+$('sHl').onclick=()=>markAll('highlight');$('sRd').onclick=()=>markAll('redact');
+renderResults();
 updNav();
 </script>
 </body>
