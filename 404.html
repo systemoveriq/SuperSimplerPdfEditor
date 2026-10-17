@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting…</title>
+  <script>
+    // Redirects any deep-link or missing route back to the root index.html
+    window.location.replace(window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/') + '#/app');
+  </script>
+</head>
+<body>
+  <p>Redirecting to <a href="/">editpdf.ink</a>...</p>
+</body>
+</html>
