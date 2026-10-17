@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDF to Word &amp; Word to PDF Converter – Keeps Formatting | SuperSimpler</title>
+<meta name="description" content="Convert PDF to Word and Word to PDF online for free. Keeps fonts, colors, images and layout. Runs in your browser, no upload.">
+<link rel="canonical" href="https://editpdf.ink/pdf-word-converter.html">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.2/dist/docx-preview.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--bg:#14161a;--panel:#1b1e24;--raise:#242830;--line:#2c313a;--text:#e8eaee;--mute:#8b93a1;--acc:#ff6a3d;--accbg:rgba(255,106,61,.14);color-scheme:dark}
+@media(prefers-color-scheme:light){:root{--bg:#f2f3f6;--panel:#fff;--raise:#eceff4;--line:#d8dde6;--text:#1a1d24;--mute:#5d6676;--acc:#e24d1a;--accbg:rgba(226,77,26,.12);color-scheme:light}}
+*{box-sizing:border-box}
+body{margin:0;font:500 14px/1.5 Manrope,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+button{font:inherit;color:inherit;cursor:pointer;border:0}
+button:focus-visible,select:focus-visible,label:focus-within{outline:2px solid var(--acc);outline-offset:2px}
+header{padding:28px 20px 8px;text-align:center}
+h1{margin:0 0 6px;font-size:clamp(24px,4vw,34px);letter-spacing:-.02em}
+header p{margin:0 auto;max-width:620px;color:var(--mute)}
+main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
+.tabs{display:flex;background:var(--raise);border-radius:12px;padding:4px;margin-bottom:16px}
+.tabs button{flex:1;padding:11px;border-radius:9px;background:none;font-weight:700;color:var(--mute)}
+.tabs button.on{background:var(--panel);color:var(--text);box-shadow:0 1px 4px #0004}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.drop{display:block;border:2px dashed var(--line);border-radius:14px;padding:34px 16px;text-align:center;cursor:pointer;transition:.15s}
+.drop:hover,.drop.over{border-color:var(--acc);background:var(--accbg)}
+.drop b{display:block;font-size:16px;margin-bottom:4px}.drop span{color:var(--mute)}
+.drop input{display:none}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+.btn{padding:11px 18px;border-radius:10px;font-weight:700;background:var(--raise);border:1px solid var(--line)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#1a0b05}
+.btn:disabled{opacity:.45;cursor:default}
+select{background:var(--raise);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;max-width:100%}
+.file{margin-top:14px;padding:10px 14px;border-radius:10px;background:var(--raise);display:flex;justify-content:space-between;gap:10px;overflow-wrap:anywhere}
+.file small{color:var(--mute);white-space:nowrap}
+.bar{height:8px;border-radius:6px;background:var(--raise);margin-top:16px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .2s}
+.msg{margin-top:10px;color:var(--mute);min-height:21px}
+.msg.err{color:#ff7b7b}.msg.ok{color:#3ecf8e}
+.notes{margin:22px 0 0;padding-left:18px;color:var(--mute);font-size:13px}
+.notes li{margin:4px 0}
+.hide{display:none!important}
+#docHost{margin:0 auto;max-width:1000px;overflow:auto;padding:0 12px 40px}
+#docHost:empty{display:none}
+.docx-wrapper{background:var(--raise)!important;padding:20px 10px!important}
+@media print{body>*:not(#docHost){display:none!important}#docHost{max-width:none;padding:0;overflow:visible}.docx-wrapper{background:none!important;padding:0!important}.docx-wrapper>section.docx{box-shadow:none!important;margin:0!important;break-after:page}@page{margin:0}}
+</style>
+</head>
+<body>
+<header>
+  <h1>PDF ↔ Word Converter</h1>
+  <p>Convert PDF to Word and Word to PDF in your browser. Your files are never uploaded.</p>
+</header>
+<main>
+  <div class="tabs" role="tablist">
+    <button class="on" id="tab1" role="tab">PDF → Word</button>
+    <button id="tab2" role="tab">Word → PDF</button>
+  </div>
+
+  <section class="card" id="p1">
+    <label class="drop" id="z1"><b>Drop a PDF here, or click to choose</b><span>.pdf files only</span><input type="file" id="f1" accept="application/pdf,.pdf"></label>
+    <div class="file hide" id="i1"></div>
+    <div class="row">
+      <select id="mode" aria-label="Conversion mode">
+        <option value="edit">Editable: real text over the original graphics</option>
+        <option value="exact">Exact: each page as a picture (not editable)</option>
+      </select>
+      <button class="btn pri" id="go1" disabled>Convert to Word</button>
+      <button class="btn hide" id="dl1">Download .docx</button>
+    </div>
+    <div class="bar"><i id="pb1"></i></div><div class="msg" id="m1"></div>
+  </section>
+
+  <section class="card hide" id="p2">
+    <label class="drop" id="z2"><b>Drop a Word file here, or click to choose</b><span>.docx files only</span><input type="file" id="f2" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></label>
+    <div class="file hide" id="i2"></div>
+    <div class="row">
+      <button class="btn pri" id="go2" disabled>Convert to PDF</button>
+      <button class="btn hide" id="dl2">Download PDF</button>
+      <button class="btn hide" id="pr2" title="Opens the print dialog. Choose “Save as PDF” to keep the text selectable.">Print / Save as PDF</button>
+    </div>
+    <div class="bar"><i id="pb2"></i></div><div class="msg" id="m2"></div>
+  </section>
+
+  <ul class="notes">
+    <li><b>PDF → Word</b> keeps every line at its original position with its font, size and color, and keeps images and graphics. Text sits in positioned frames, so it is editable but does not reflow like normal Word text.</li>
+    <li><b>Word → PDF</b> shows your document as Word lays it out. Fonts that are not installed on your device get replaced, which can shift the layout slightly.</li>
+    <li>Scanned PDFs have no real text. Use “Exact” mode, or run OCR first.</li>
+  </ul>
+</main>
+<div id="docHost"></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+const $=id=>document.getElementById(id);
+const X=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const prog=(n,v,m,k)=>{$('pb'+n).style.width=v+'%';const e=$('m'+n);e.textContent=m||'';e.className='msg'+(k?' '+k:'')};
+const kb=b=>b>1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB';
+function save(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}
+const F={1:null,2:null};
+
+// ---------- tabs + drop zones ----------
+function tab(t){[1,2].forEach(n=>{$('tab'+n).classList.toggle('on',n===t);$('p'+n).classList.toggle('hide',n!==t)});$('docHost').classList.toggle('hide',t!==2)}
+$('tab1').onclick=()=>tab(1);$('tab2').onclick=()=>tab(2);
+function zone(n,re,label){
+  const z=$('z'+n),inp=$('f'+n);
+  const take=f=>{
+    if(!f)return;
+    if(!re.test(f.name)){prog(n,0,'Please choose a '+label+' file.','err');return}
+    F[n]=f;$('i'+n).innerHTML='<span>'+X(f.name)+'</span><small>'+kb(f.size)+'</small>';$('i'+n).classList.remove('hide');
+    $('go'+n).disabled=false;$('dl'+n).classList.add('hide');if(n===2)$('pr2').classList.add('hide');prog(n,0,'');
+  };
+  inp.onchange=()=>{take(inp.files[0]);inp.value=''};
+  ['dragover','dragenter'].forEach(e=>z.addEventListener(e,ev=>{ev.preventDefault();z.classList.add('over')}));
+  ['dragleave','drop'].forEach(e=>z.addEventListener(e,ev=>{ev.preventDefault();z.classList.remove('over')}));
+  z.addEventListener('drop',ev=>take(ev.dataTransfer.files[0]));
+}
+zone(1,/\.pdf$/i,'PDF');zone(2,/\.docx$/i,'.docx Word');
+
+// ---------- PDF -> Word ----------
+const mc=document.createElement('canvas').getContext('2d');
+const cv=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c};
+function family(n,ff){
+  n=(n||'').replace(/^[A-Z]{6}\+/,'');
+  const m=[[/georgia/i,'Georgia'],[/cambria/i,'Cambria'],[/garamond/i,'Garamond'],[/palatino/i,'Palatino Linotype'],[/times|roman/i,'Times New Roman'],
+    [/consolas/i,'Consolas'],[/courier|mono/i,'Courier New'],[/calibri/i,'Calibri'],[/verdana/i,'Verdana'],[/tahoma/i,'Tahoma'],[/arial|helvet/i,'Arial']].find(r=>r[0].test(n));
+  if(m)return m[1];
+  const c=n.replace(/[-,](Bold|Italic|Regular|Oblique|Semibold|Light|Medium|Black).*$/i,'').replace(/([a-z])([A-Z])/g,'$1 $2').trim();
+  return c||(ff==='serif'?'Times New Roman':ff==='monospace'?'Courier New':'Arial');
+}
+function fontOf(pg,it){
+  let f=null;try{f=pg.commonObjs.has(it.fn)?pg.commonObjs.get(it.fn):null}catch(e){}
+  const nm=((f&&f.name)||'')+' '+(it.ff||'');
+  return{fam:family(f&&f.name,it.ff),b:!!(f&&(f.bold||f.black))||/bold|black|heavy|semibold|demi/i.test(nm),i:!!(f&&f.italic)||/italic|oblique/i.test(nm)};
+}
+// real text colour: the pixels furthest from the background colour
+function ink(cx,W,H,x,y,w,h){
+  x=Math.max(0,x|0);y=Math.max(0,y|0);w=Math.min(W-x,Math.ceil(w));h=Math.min(H-y,Math.ceil(h));
+  if(w<1||h<1)return'000000';
+  let d;try{d=cx.getImageData(x,y,w,h).data}catch(e){return'000000'}
+  const m=new Map();
+  for(let i=0;i<d.length;i+=4){const k=(d[i]>>4)<<8|(d[i+1]>>4)<<4|d[i+2]>>4;m.set(k,(m.get(k)||0)+1)}
+  let bk=0,bc=0;m.forEach((c,k)=>{if(c>bc){bc=c;bk=k}});
+  const r=((bk>>8)&15)*17,g=((bk>>4)&15)*17,b=(bk&15)*17,dist=i=>Math.abs(d[i]-r)+Math.abs(d[i+1]-g)+Math.abs(d[i+2]-b);
+  let mx=0;for(let i=0;i<d.length;i+=4)mx=Math.max(mx,dist(i));
+  if(mx<60)return r+g+b>380?'000000':'FFFFFF';
+  let R=0,G=0,B=0,n=0;
+  for(let i=0;i<d.length;i+=4)if(dist(i)>=mx*.85){R+=d[i];G+=d[i+1];B+=d[i+2];n++}
+  return[R,G,B].map(v=>Math.round(v/n).toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+const NS='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"';
+const sect=(w,h)=>`<w:sectPr><w:pgSz w:w="${w}" w:h="${h}"/><w:pgMar w:top="0" w:right="0" w:bottom="0" w:left="0" w:header="0" w:footer="0" w:gutter="0"/></w:sectPr>`;
+function bgPara(n,w,h){
+  const cx=Math.round(w*12700),cy=Math.round(h*12700);
+  return `<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="20" w:lineRule="exact"/></w:pPr><w:r><w:drawing><wp:anchor distT="0" distB="0" distL="0" distR="0" simplePos="0" relativeHeight="${n}" behindDoc="1" locked="0" layoutInCell="1" allowOverlap="1"><wp:simplePos x="0" y="0"/><wp:positionH relativeFrom="page"><wp:posOffset>0</wp:posOffset></wp:positionH><wp:positionV relativeFrom="page"><wp:posOffset>0</wp:posOffset></wp:positionV><wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:wrapNone/><wp:docPr id="${n}" name="Page ${n}"/><wp:cNvGraphicFramePr/><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="${n}" name="p${n}.jpg"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId${n}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:anchor></w:drawing></w:r></w:p>`;
+}
+// group text items into lines, then into segments (a big gap starts a new frame, e.g. table columns)
+function segments(items){
+  const rows=[];
+  items.sort((a,b)=>a.y-b.y).forEach(it=>{const r=rows.find(r=>Math.abs(r.y-it.y)<it.fs*.35);r?r.it.push(it):rows.push({y:it.y,it:[it]})});
+  const out=[];
+  rows.forEach(r=>{
+    r.it.sort((a,b)=>a.x-b.x);let cur=null;
+    r.it.forEach(it=>{
+      if(cur&&it.x-cur.end<Math.max(it.fs,cur.fs)*1.6)cur.it.push(it);else{cur={it:[it]};out.push(cur)}
+      cur.end=it.x+it.w;
+    });
+  });
+  return out;
+}
+async function p2w(file){
+  const exact=$('mode').value==='exact',S=2;
+  const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+  const zip=new JSZip(),body=[],rels=[];let last='';
+  for(let n=1;n<=pdf.numPages;n++){
+    prog(1,Math.round((n-1)/pdf.numPages*92),`Converting page ${n} of ${pdf.numPages}…`);
+    await new Promise(r=>setTimeout(r));
+    const pg=await pdf.getPage(n),v1=pg.getViewport({scale:1}),vp=pg.getViewport({scale:S});
+    const full=cv(vp.width,vp.height),fx=full.getContext('2d',{willReadFrequently:true});
+    fx.fillStyle='#fff';fx.fillRect(0,0,full.width,full.height);
+    await pg.render({canvasContext:fx,viewport:vp}).promise;
+    let bg=full;
+    if(!exact){ // second render without text: keeps images, lines, fills and shapes
+      bg=cv(vp.width,vp.height);const bx=bg.getContext('2d');bx.fillStyle='#fff';bx.fillRect(0,0,bg.width,bg.height);
+      bx.fillText=bx.strokeText=()=>{};
+      await pg.render({canvasContext:bx,viewport:vp}).promise;
+    }
+    zip.file(`word/media/p${n}.jpg`,bg.toDataURL('image/jpeg',.92).split(',')[1],{base64:true});
+    rels.push(`<Relationship Id="rId${n}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/p${n}.jpg"/>`);
+    const W=Math.round(v1.width*20),H=Math.round(v1.height*20);
+    let xml=bgPara(n,v1.width,v1.height);
+    if(!exact){
+      const tc=await pg.getTextContent(),fc={};
+      const items=tc.items.filter(i=>i.str!=='').map(i=>{const t=pdfjsLib.Util.transform(v1.transform,i.transform);return{s:i.str,x:t[4],y:t[5],w:i.width,fs:Math.hypot(t[2],t[3])||10,fn:i.fontName,ff:(tc.styles[i.fontName]||{}).fontFamily}});
+      segments(items).forEach(seg=>{
+        const a=seg.it,first=a[0],mxFs=Math.max(...a.map(i=>i.fs));let runs='',prevEnd=null;
+        a.forEach(it=>{
+          const fi=fc[it.fn]||(fc[it.fn]=fontOf(pg,it));let txt=it.s;
+          if(prevEnd!==null&&it.x-prevEnd>it.fs*.15&&!/\s$/.test(runs.slice(-3))&&!/^\s/.test(txt))txt=' '+txt;
+          prevEnd=it.x+it.w;
+          mc.font=`${fi.i?'italic ':''}${fi.b?'bold ':''}${it.fs*S}px "${fi.fam}"`;
+          const sp=txt.length>1?Math.max(-40,Math.min(40,Math.round((it.w-mc.measureText(txt).width/S)/txt.length*20))):0;
+          const col=ink(fx,full.width,full.height,it.x*S,(it.y-it.fs*.85)*S,it.w*S,it.fs*S);
+          runs+=`<w:r><w:rPr><w:rFonts w:ascii="${X(fi.fam)}" w:hAnsi="${X(fi.fam)}" w:cs="${X(fi.fam)}"/>${fi.b?'<w:b/>':''}${fi.i?'<w:i/>':''}<w:color w:val="${col}"/>${sp?`<w:spacing w:val="${sp}"/>`:''}<w:sz w:val="${Math.max(2,Math.round(it.fs*2))}"/></w:rPr><w:t xml:space="preserve">${X(txt)}</w:t></w:r>`;
+        });
+        const width=Math.round(((a[a.length-1].x+a[a.length-1].w-first.x)*1.08+6)*20);
+        xml+=`<w:p><w:pPr><w:framePr w:w="${width}" w:hSpace="0" w:wrap="around" w:vAnchor="page" w:hAnchor="page" w:x="${Math.round(first.x*20)}" w:y="${Math.round((first.y-mxFs*.9)*20)}"/><w:spacing w:before="0" w:after="0"/></w:pPr>${runs}</w:p>`;
+      });
+    }
+    if(n<pdf.numPages)xml+=`<w:p><w:pPr>${sect(W,H)}</w:pPr></w:p>`;else last=sect(W,H);
+    body.push(xml);pg.cleanup();
+  }
+  prog(1,95,'Packing the Word file…');
+  zip.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+  zip.file('_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+  zip.file('word/_rels/document.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+rels.join('')+'</Relationships>');
+  zip.file('word/document.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${NS}><w:body>${body.join('')}${last}</w:body></w:document>`);
+  return zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',compression:'DEFLATE'});
+}
+let docxBlob=null;
+$('go1').onclick=async()=>{
+  if(!F[1])return;$('go1').disabled=true;$('dl1').classList.add('hide');
+  try{docxBlob=await p2w(F[1]);prog(1,100,'Done. Check the result in Word, then download.','ok');$('dl1').classList.remove('hide')}
+  catch(e){console.error(e);prog(1,0,'Could not convert this PDF'+(e&&e.name==='PasswordException'?' because it is password protected.':'. It may be damaged.'),'err')}
+  $('go1').disabled=false;
+};
+$('dl1').onclick=()=>docxBlob&&save(docxBlob,F[1].name.replace(/\.pdf$/i,'')+'.docx');
+
+// ---------- Word -> PDF ----------
+let pdfBlob=null;
+$('go2').onclick=async()=>{
+  if(!F[2])return;const go=$('go2');go.disabled=true;['dl2','pr2'].forEach(i=>$(i).classList.add('hide'));
+  const host=$('docHost');host.innerHTML='';
+  try{
+    prog(2,8,'Reading the Word file…');
+    await docx.renderAsync(await F[2].arrayBuffer(),host,null,{inWrapper:true,breakPages:true,ignoreWidth:false,ignoreHeight:false,renderHeaders:true,renderFooters:true,renderFootnotes:true,renderEndnotes:true,useBase64URL:true,experimental:true});
+    await (document.fonts&&document.fonts.ready);await new Promise(r=>setTimeout(r,400));
+    const secs=[...host.querySelectorAll('section.docx')];if(!secs.length)throw new Error('empty');
+    let pdf=null;
+    for(let i=0;i<secs.length;i++){
+      prog(2,15+Math.round(i/secs.length*80),`Rendering page ${i+1} of ${secs.length}…`);
+      const s=secs[i],w=s.offsetWidth,h=s.offsetHeight;
+      const c=await html2canvas(s,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false});
+      const o=w>h?'l':'p',fmt=[w,h];
+      if(!pdf)pdf=new jspdf.jsPDF({orientation:o,unit:'px',format:fmt,hotfixes:['px_scaling'],compress:true});else pdf.addPage(fmt,o);
+      pdf.addImage(c.toDataURL('image/jpeg',.93),'JPEG',0,0,w,h);
+    }
+    pdfBlob=pdf.output('blob');prog(2,100,`Done: ${secs.length} page${secs.length>1?'s':''}. The preview below shows the layout used.`,'ok');
+    ['dl2','pr2'].forEach(i=>$(i).classList.remove('hide'));
+  }catch(e){console.error(e);prog(2,0,'Could not convert this file. Only .docx (not the older .doc) is supported.','err')}
+  go.disabled=false;
+};
+$('dl2').onclick=()=>pdfBlob&&save(pdfBlob,F[2].name.replace(/\.docx$/i,'')+'.pdf');
+$('pr2').onclick=()=>window.print();
+</script>
+</body>
+</html>
