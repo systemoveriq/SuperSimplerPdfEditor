@@ -1,0 +1,16 @@
+# ============================================================
+#  SuperSimpler - extra tools list
+#  One tool per line:   Name | file or link | Short description | icon (optional)
+#  - Lines starting with # are ignored.
+#  - File: a page in the same folder (e.g. ocr.html) opens inside the editor.
+#    A full https:// link opens in a new tab.
+#  - Icon is optional. Choose from: shield, image, scan-text, droplet,
+#    qrcode, file-pdf, merge, wrench. If left out, it is guessed from the name.
+#  Add a new tool by adding a new line. No code changes needed.
+# ============================================================
+
+EXIF Remover | exif-remover.html | Strip location and camera data from photos | shield
+Image Resizer | imate-resizer.html | Resize and compress images in your browser | image
+OCR | ocr.html | Extract text from images and scans | scan-text
+PDF Watermark | pdf-watermark.html | Add a watermark to your PDF pages | droplet
+QR Generator & Decoder | qr-generator-decoder.html | Create and read QR codes | qrcode
