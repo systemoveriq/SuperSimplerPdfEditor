@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SuperSimpler – Advanced Multi-PDF Comparison Workspace</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<style>
+:root{--bg:#14161a;--panel:#1b1e24;--raise:#242830;--line:#2c313a;--text:#e8eaee;--mute:#8b93a1;--acc:#ff6a3d;--accbg:rgba(255,106,61,.14);--stage:#0e1013}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font:500 13px/1.4 Manrope,system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.hide{display:none!important}
+header{height:56px;display:flex;align-items:center;gap:10px;padding:0 14px;background:var(--panel);border-bottom:1px solid var(--line);flex:none;flex-wrap:nowrap;overflow-x:auto}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px;letter-spacing:-.02em;color:var(--text);white-space:nowrap}
+.logo span{color:var(--acc)}
+.sp{flex:1}
+
+.selector-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.selector-screen h2{margin:0 0 8px;font-size:22px;letter-spacing:-.02em}
+.selector-screen p{margin:0 0 24px;color:var(--mute);font-size:13px}
+.choices{display:flex;gap:12px}
+.choice-btn{padding:16px 24px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-weight:700;font-size:15px;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:.15s}
+.choice-btn:hover{background:var(--raise);border-color:var(--acc);transform:translateY(-2px)}
+.choice-btn span{font-size:11px;color:var(--mute);font-weight:500}
+
+.grid-container{flex:1;display:grid;gap:2px;background:var(--line);overflow:hidden}
+.grid-2{grid-template-columns:1fr 1fr;grid-template-rows:1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr}
+.grid-4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+
+.pane-box{background:var(--bg);display:flex;flex-direction:column;overflow:hidden;position:relative}
+.pane-header{height:44px;background:var(--panel);display:flex;align-items:center;gap:5px;padding:0 8px;border-bottom:1px solid var(--line);flex:none;font-weight:600;font-size:11px}
+.pane-header input[type=file]{display:none}
+.layout-select, .nav-input{background:var(--raise);border:1px solid var(--line);border-radius:6px;padding:3px 5px;font-size:11px;font-weight:700}
+.nav-input{width:34px;text-align:center}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:5px 8px;border-radius:6px;font-weight:700;background:var(--raise);border:1px solid var(--line);font-size:11px;white-space:nowrap}
+.btn:hover{background:#2d323c}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#1a0b05}
+.pane-stage{flex:1;overflow:auto;position:relative;background:var(--stage);display:flex;flex-direction:column;align-items:center;padding:16px}
+.drop-zone{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;background:var(--bg);z-index:5}
+.drop-zone.over{background:var(--accbg);border:2px dashed var(--acc)}
+.drop-zone h3{margin:0 0 6px;font-size:15px}
+.drop-zone p{margin:0 0 14px;color:var(--mute);font-size:11px}
+.pdf-canvas-wrap{position:relative;box-shadow:0 4px 12px #000a;background:#fff;margin:auto}
+.pdf-canvas-wrap canvas{display:block}
+.pill{color:var(--mute);font-size:11px;white-space:nowrap}
+.ib{width:24px;height:24px;border-radius:6px;color:var(--mute);display:grid;place-items:center;background:var(--raise);font-size:11px}
+.ib:hover{color:var(--text);background:#2d323c}
+
+/* Search Modal Overlay */
+.modal{position:fixed;inset:0;background:#000a;backdrop-filter:blur(3px);display:grid;place-items:center;z-index:50;padding:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;width:min(480px,100%);max-height:85vh;overflow:auto}
+.card h3{margin:0 0 12px;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.search-input{width:100%;background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--text);margin-bottom:12px}
+.search-results{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto}
+.search-item{padding:8px 10px;background:var(--raise);border-radius:6px;cursor:pointer;font-size:12px;color:var(--mute)}
+.search-item:hover{background:#2d323c;color:var(--text)}
+.search-item b{color:var(--acc)}
+
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#5b6474;border-radius:4px}::-webkit-scrollbar-track{background:#181b21}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">SuperSimpler <span>Compare Workspace</span></div>
+  <div class="sp"></div>
+  <button class="btn hide" id="searchGlobalBtn" onclick="openSearchModal()">Advanced Search</button>
+  <label class="btn hide" id="syncScrollLabel" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+    <input type="checkbox" id="syncScrollChk" style="accent-color:var(--acc);"> Synced Scroll & Page Lock
+  </label>
+  <select class="layout-select hide" id="layoutSelector" onchange="changeLayout(this.value)">
+    <option value="2">2 Windows</option>
+    <option value="3">3 Windows</option>
+    <option value="4">4 Windows</option>
+  </select>
+  <button class="btn hide" id="resetBtn" onclick="resetLayout()">Home Menu</button>
+</header>
+
+<!-- Initial Layout Selector Screen -->
+<div class="selector-screen" id="selectorScreen">
+  <h2>Select Comparison Layout</h2>
+  <p>Choose how many PDF windows you want to compare side-by-side (2 to 4)</p>
+  <div class="choices">
+    <button class="choice-btn" onclick="initLayout(2)">2 Windows <span>Side-by-Side</span></button>
+    <button class="choice-btn" onclick="initLayout(3)">3 Windows <span>Triple Split</span></button>
+    <button class="choice-btn" onclick="initLayout(4)">4 Windows <span>2x2 Grid</span></button>
+  </div>
+</div>
+
+<!-- Main Grid Workspace -->
+<div class="grid-container hide" id="gridContainer"></div>
+
+<!-- Search Modal -->
+<div class="modal hide" id="searchModal">
+  <div class="card">
+    <h3>Search Across Documents <button class="ib" onclick="closeSearchModal()">✕</button></h3>
+    <input type="text" class="search-input" id="globalSearchInput" placeholder="Type keyword to search in all loaded PDFs..." oninput="runGlobalSearch(this.value)">
+    <div class="search-results" id="searchResultsList">
+      <div class="pill" style="text-align:center;padding:20px;">Type a query to begin search...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+let activeCount = 0;
+let panes = [];
+let isSyncingScroll = false;
+
+function initLayout(count) {
+  activeCount = count;
+  panes = Array.from({ length: count }, () => ({ pdf: null, pageNum: 1, totalPages: 1, zoom: 1.0, name: null, textContents: [] }));
+
+  document.getElementById('selectorScreen').classList.add('hide');
+  document.getElementById('resetBtn').classList.remove('hide');
+  document.getElementById('layoutSelector').classList.remove('hide');
+  document.getElementById('searchGlobalBtn').classList.remove('hide');
+  document.getElementById('syncScrollLabel').style.display = 'inline-flex';
+  
+  document.getElementById('layoutSelector').value = count;
+  renderGridContainer();
+}
+
+function changeLayout(newCount) {
+  newCount = parseInt(newCount);
+  let newPanes = Array.from({ length: newCount }, (_, i) => {
+    return panes[i] || { pdf: null, pageNum: 1, totalPages: 1, zoom: 1.0, name: null, textContents: [] };
+  });
+  activeCount = newCount;
+  panes = newPanes;
+  document.getElementById('layoutSelector').value = newCount;
+  renderGridContainer();
+}
+
+function renderGridContainer() {
+  const container = document.getElementById('gridContainer');
+  container.className = `grid-container grid-${activeCount}`;
+  container.classList.remove('hide');
+
+  let htmlContent = '';
+  for (let i = 0; i < activeCount; i++) {
+    const paneName = panes[i].name ? panes[i].name : `PDF ${i + 1} (Empty)`;
+    htmlContent += `
+      <div class="pane-box" id="pane${i}" draggable="true" ondragstart="dragStart(event, ${i})" ondragover="allowDrop(event)" ondrop="dropPane(event, ${i})">
+        <div class="pane-header">
+          <button class="btn pri" onclick="document.getElementById('file${i}').click()">Open</button>
+          <input type="file" id="file${i}" accept="application/pdf" onchange="loadPdf(${i}, event)">
+          <span class="pill title-label" id="title${i}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px;" title="${paneName}">${paneName}</span>
+          <div class="sp"></div>
+          <button class="ib" onclick="changePage(${i}, -1)" title="Previous Page">◀</button>
+          <input type="text" class="nav-input" id="pageIn${i}" value="${panes[i].pageNum}" onchange="jumpPage(${i}, this.value)">
+          <span class="pill" id="pageTot${i}">/ ${panes[i].totalPages}</span>
+          <button class="ib" onclick="changePage(${i}, 1)" title="Next Page">▶</button>
+          <button class="ib" onclick="zoomPane(${i}, -0.1)" title="Zoom Out">-</button>
+          <span class="pill" id="zoom${i}">${Math.round(panes[i].zoom * 100)}%</span>
+          <button class="ib" onclick="zoomPane(${i}, 0.1)" title="Zoom In">+</button>
+          <button class="btn" onclick="fitToWidth(${i})" title="Fit to Width">Fit W</button>
+          <button class="btn" onclick="fitToPage(${i})" title="Fit to Page">Fit P</button>
+        </div>
+        <div class="pane-stage" id="stage${i}" onscroll="handlePaneScroll(${i})" ondragover="overHandler(event)" ondragleave="leaveHandler(event)" ondrop="dropFileHandler(event, ${i})">
+          <div class="drop-zone ${panes[i].pdf ? 'hide' : ''}" id="drop${i}">
+            <h3>PDF Document ${i + 1}</h3>
+            <p>Drag & drop PDF here or click open</p>
+            <button class="btn" onclick="document.getElementById('file${i}').click()">Choose File</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  container.innerHTML = htmlContent;
+
+  panes.forEach((pane, idx) => {
+    if (pane.pdf) {
+      renderPage(idx);
+    }
+  });
+}
+
+/* Synchronized Scrolling & Page Locking Mechanism */
+function handlePaneScroll(sourceIndex) {
+  if (!document.getElementById('syncScrollChk').checked || isSyncingScroll) return;
+  isSyncingScroll = true;
+
+  const sourceStage = document.getElementById(`stage${sourceIndex}`);
+  const scrollTopRatio = sourceStage.scrollTop / (sourceStage.scrollHeight - sourceStage.clientHeight || 1);
+  const scrollLeftRatio = sourceStage.scrollLeft / (sourceStage.scrollWidth - sourceStage.clientWidth || 1);
+
+  panes.forEach((targetPane, idx) => {
+    if (idx !== sourceIndex) {
+      const targetStage = document.getElementById(`stage${idx}`);
+      if (targetStage) {
+        targetStage.scrollTop = scrollTopRatio * (targetStage.scrollHeight - targetStage.clientHeight);
+        targetStage.scrollLeft = scrollLeftRatio * (targetStage.scrollWidth - targetStage.clientWidth);
+      }
+      // Sync page navigation if locked
+      if (targetPane.pdf && targetPane.pageNum !== panes[sourceIndex].pageNum) {
+        targetPane.pageNum = Math.min(panes[sourceIndex].pageNum, targetPane.totalPages);
+        renderPage(idx);
+      }
+    }
+  });
+  setTimeout(() => { isSyncingScroll = false; }, 50);
+}
+
+/* Window Drag & Drop Reordering */
+let draggedPaneIndex = null;
+function dragStart(e, index) { draggedPaneIndex = index; e.dataTransfer.effectAllowed = 'move'; }
+function allowDrop(e) { e.preventDefault(); }
+function dropPane(e, targetIndex) {
+  e.preventDefault();
+  if (draggedPaneIndex === null || draggedPaneIndex === targetIndex) return;
+  let temp = panes[draggedPaneIndex];
+  panes[draggedPaneIndex] = panes[targetIndex];
+  panes[targetIndex] = temp;
+  draggedPaneIndex = null;
+  renderGridContainer();
+}
+
+function resetLayout() {
+  document.getElementById('gridContainer').classList.add('hide');
+  document.getElementById('gridContainer').innerHTML = '';
+  document.getElementById('resetBtn').classList.add('hide');
+  document.getElementById('layoutSelector').classList.add('hide');
+  document.getElementById('searchGlobalBtn').classList.add('hide');
+  document.getElementById('syncScrollLabel').style.display = 'none';
+  document.getElementById('selectorScreen').classList.remove('hide');
+}
+
+function overHandler(e) { e.preventDefault(); e.currentTarget.querySelector('.drop-zone')?.classList.add('over'); }
+function leaveHandler(e) { e.preventDefault(); e.currentTarget.querySelector('.drop-zone')?.classList.remove('over'); }
+function dropFileHandler(e, index) {
+  e.preventDefault();
+  e.currentTarget.querySelector('.drop-zone')?.classList.remove('over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') processFile(index, file);
+}
+
+function loadPdf(index, event) {
+  const file = event.target.files[0];
+  if (file) processFile(index, file);
+}
+
+async function processFile(index, file) {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    const pdfDoc = await loadingTask.promise;
+    panes[index].pdf = pdfDoc;
+    panes[index].pageNum = 1;
+    panes[index].totalPages = pdfDoc.numPages;
+    panes[index].name = file.name;
+
+    // Fixed & Robust text extraction loop across all pages
+    panes[index].textContents = [];
+    for (let p = 1; p <= pdfDoc.numPages; p++) {
+      const page = await pdfDoc.getPage(p);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map(item => item.str).join(' ');
+      panes[index].textContents.push({ pageNum: p, text: pageText });
+    }
+
+    document.getElementById(`title${index}`).textContent = file.name;
+    document.getElementById(`title${index}`).title = file.name;
+    document.getElementById(`drop${index}`).classList.add('hide');
+    document.getElementById(`pageTot${index}`).textContent = `/ ${pdfDoc.numPages}`;
+    
+    renderPage(index);
+  } catch (err) {
+    alert('Error loading PDF file.');
+  }
+}
+
+async function renderPage(index) {
+  const pane = panes[index];
+  if (!pane.pdf) return;
+  const page = await pane.pdf.getPage(pane.pageNum);
+  const viewport = page.getViewport({ scale: pane.zoom });
+  
+  const stage = document.getElementById(`stage${index}`);
+  if (!stage) return;
+  let wrap = stage.querySelector('.pdf-canvas-wrap');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.className = 'pdf-canvas-wrap';
+    const canvas = document.createElement('canvas');
+    wrap.appendChild(canvas);
+    stage.appendChild(wrap);
+  }
+  const canvas = wrap.querySelector('canvas');
+  const context = canvas.getContext('2d');
+  canvas.height = viewport.height;
+  canvas.width = viewport.width;
+
+  await page.render({ canvasContext: context, viewport: viewport }).promise;
+  document.getElementById(`zoom${index}`).textContent = Math.round(pane.zoom * 100) + '%';
+  document.getElementById(`pageIn${index}`).value = pane.pageNum;
+}
+
+function changePage(index, delta) {
+  const pane = panes[index];
+  if (!pane.pdf) return;
+  const newPage = pane.pageNum + delta;
+  if (newPage >= 1 && newPage <= pane.totalPages) {
+    pane.pageNum = newPage;
+    renderPage(index);
+    
+    if (document.getElementById('syncScrollChk').checked) {
+      panes.forEach((targetPane, idx) => {
+        if (idx !== index && targetPane.pdf) {
+          targetPane.pageNum = Math.min(newPage, targetPane.totalPages);
+          renderPage(idx);
+        }
+      });
+    }
+  }
+}
+
+function jumpPage(index, val) {
+  const pane = panes[index];
+  if (!pane.pdf) return;
+  let p = parseInt(val);
+  if (!isNaN(p) && p >= 1 && p <= pane.totalPages) {
+    pane.pageNum = p;
+    renderPage(index);
+
+    if (document.getElementById('syncScrollChk').checked) {
+      panes.forEach((targetPane, idx) => {
+        if (idx !== index && targetPane.pdf) {
+          targetPane.pageNum = Math.min(p, targetPane.totalPages);
+          renderPage(idx);
+        }
+      });
+    }
+  } else {
+    document.getElementById(`pageIn${index}`).value = pane.pageNum;
+  }
+}
+
+function zoomPane(index, delta) {
+  if (!panes[index].pdf) return;
+  panes[index].zoom = Math.min(3.0, Math.max(0.2, panes[index].zoom + delta));
+  renderPage(index);
+}
+
+async function fitToWidth(index) {
+  const pane = panes[index];
+  if (!pane.pdf) return;
+  const page = await pane.pdf.getPage(pane.pageNum);
+  const stage = document.getElementById(`stage${index}`);
+  const unscaledViewport = page.getViewport({ scale: 1.0 });
+  pane.zoom = (stage.clientWidth - 40) / unscaledViewport.width;
+  renderPage(index);
+}
+
+async function fitToPage(index) {
+  const pane = panes[index];
+  if (!pane.pdf) return;
+  const page = await pane.pdf.getPage(pane.pageNum);
+  const stage = document.getElementById(`stage${index}`);
+  const unscaledViewport = page.getViewport({ scale: 1.0 });
+  const scaleX = (stage.clientWidth - 40) / unscaledViewport.width;
+  const scaleY = (stage.clientHeight - 40) / unscaledViewport.height;
+  pane.zoom = Math.min(scaleX, scaleY);
+  renderPage(index);
+}
+
+/* Global / Advanced Search Functions (Fixed & Fully Functional) */
+function openSearchModal() { 
+  document.getElementById('searchModal').classList.remove('hide'); 
+  document.getElementById('globalSearchInput').value = '';
+  document.getElementById('searchResultsList').innerHTML = '<div class="pill" style="text-align:center;padding:20px;">Type a query to begin search...</div>';
+  document.getElementById('globalSearchInput').focus(); 
+}
+
+function closeSearchModal() { 
+  document.getElementById('searchModal').classList.add('hide'); 
+}
+
+function runGlobalSearch(query) {
+  const listEl = document.getElementById('searchResultsList');
+  if (!query || !query.trim()) {
+    listEl.innerHTML = '<div class="pill" style="text-align:center;padding:20px;">Type a query to begin search...</div>';
+    return;
+  }
+
+  let resultsHtml = '';
+  let matchCount = 0;
+  const lowerQuery = query.toLowerCase().trim();
+
+  panes.forEach((pane, paneIdx) => {
+    if (!pane.pdf || !pane.textContents) return;
+    pane.textContents.forEach(item => {
+      if (item.text.toLowerCase().includes(lowerQuery)) {
+        matchCount++;
+        // Generate snippet context around the match
+        const lowerText = item.text.toLowerCase();
+        const matchIdx = lowerText.indexOf(lowerQuery);
+        const start = Math.max(0, matchIdx - 30);
+        const end = Math.min(item.text.length, matchIdx + query.length + 30);
+        let snippet = item.text.substring(start, end);
+        if (start > 0) snippet = '...' + snippet;
+        if (end < item.text.length) snippet = snippet + '...';
+
+        resultsHtml += `
+          <div class="search-item" onclick="jumpToSearchResult(${paneIdx}, ${item.pageNum})">
+            <b>PDF ${paneIdx + 1} (${pane.name || 'Doc'})</b> — Page ${item.pageNum}<br>
+            <span style="color:var(--text);font-size:11px;">"${escapeHtml(snippet)}"</span>
+          </div>
+        `;
+      }
+    });
+  });
+
+  if (matchCount === 0) {
+    listEl.innerHTML = '<div class="pill" style="text-align:center;padding:20px;">No matches found across loaded PDFs.</div>';
+  } else {
+    listEl.innerHTML = resultsHtml;
+  }
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function jumpToSearchResult(paneIndex, pageNum) {
+  panes[paneIndex].pageNum = pageNum;
+  renderPage(paneIndex);
+  closeSearchModal();
+}
+</script>
+
+</body>
+</html>
