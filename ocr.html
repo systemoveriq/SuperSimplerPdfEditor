@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Open Graph / Social Media Meta Tags -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://editpdf.ink/">
+<meta property="og:title" content="editpdf.ink - 100% Private, Client-Side Web Utilities">
+<meta property="og:description" content="Free, browser-based PDF editing, OCR, EXIF scrubbing, image resizing, and encrypted pastebin. Zero server uploads.">
+<meta property="og:image" content="https://editpdf.ink/og-image.png">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="editpdf.ink - In-Browser Privacy Tools">
+<meta name="twitter:description" content="Process PDFs, scrub EXIF tags, extract OCR text, and encrypt snippets completely offline in your browser.">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Online OCR - Extract Text from Image & PDF | editpdf.ink</title>
+  <meta name="description" content="100% private, client-side OCR tool. Extract editable text from scanned PDFs, images, and screenshots locally in your browser.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans">
+  
+  <header class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="/" class="font-extrabold text-xl tracking-tight">editpdf<span class="text-indigo-600">.ink</span></a>
+      <span class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-semibold">100% Client-Side</span>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-8 space-y-6">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <h1 class="text-2xl font-bold mb-2">OCR Text Extractor</h1>
+      <p class="text-sm text-gray-500 mb-6">Extract text from scanned documents or screenshots. Zero server uploads.</p>
+
+      <div class="mb-4">
+        <label class="block text-xs font-semibold uppercase text-gray-500 mb-1">Select Language</label>
+        <select id="ocrLang" class="w-full sm:w-64 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg p-2.5 text-sm">
+          <option value="eng" selected>English</option>
+          <option value="spa">Spanish (Español)</option>
+          <option value="fra">French (Français)</option>
+          <option value="deu">German (Deutsch)</option>
+          <option value="chi_sim">Chinese (中文)</option>
+        </select>
+      </div>
+
+      <div id="dropzone" class="border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-indigo-500 rounded-2xl p-8 text-center cursor-pointer bg-gray-50/50 dark:bg-gray-900/30">
+        <input type="file" id="fileInput" class="hidden" accept="image/*">
+        <div class="text-4xl mb-2">📄</div>
+        <p class="font-semibold">Drag & drop an image here or click to upload</p>
+      </div>
+
+      <div id="progress" class="hidden mt-4 space-y-2">
+        <div class="flex justify-between text-xs text-gray-500">
+          <span>Processing image...</span>
+          <span id="pct">0%</span>
+        </div>
+        <div class="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+          <div id="bar" class="bg-indigo-600 h-full w-0 transition-all"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="result" class="hidden bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-4">
+      <div class="flex justify-between items-center">
+        <h2 class="font-bold text-lg">Extracted Text</h2>
+        <div class="flex space-x-2">
+          <button onclick="navigator.clipboard.writeText(document.getElementById('output').value)" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 rounded-lg text-xs font-semibold">📋 Copy</button>
+          <button onclick="downloadPdf()" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold">📄 Export PDF</button>
+        </div>
+      </div>
+      <textarea id="output" class="w-full h-64 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4 font-mono text-sm focus:outline-none"></textarea>
+    </div>
+  </main>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => { if (e.target.files.length) runOcr(e.target.files[0]); });
+
+    async function runOcr(file) {
+      document.getElementById('progress').classList.remove('hidden');
+      document.getElementById('result').classList.add('hidden');
+
+      try {
+        const lang = document.getElementById('ocrLang').value;
+        const worker = await Tesseract.createWorker(lang, 1, {
+          logger: m => {
+            if (m.status === 'recognizing text') {
+              const p = Math.round(m.progress * 100);
+              document.getElementById('bar').style.width = p + '%';
+              document.getElementById('pct').textContent = p + '%';
+            }
+          }
+        });
+        const ret = await worker.recognize(file);
+        document.getElementById('output').value = ret.data.text;
+        await worker.terminate();
+
+        document.getElementById('progress').classList.add('hidden');
+        document.getElementById('result').classList.remove('hidden');
+      } catch (err) {
+        alert('OCR error: ' + err.message);
+        document.getElementById('progress').classList.add('hidden');

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Open Graph / Social Media Meta Tags -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://editpdf.ink/">
+<meta property="og:title" content="editpdf.ink - 100% Private, Client-Side Web Utilities">
+<meta property="og:description" content="Free, browser-based PDF editing, OCR, EXIF scrubbing, image resizing, and encrypted pastebin. Zero server uploads.">
+<meta property="og:image" content="https://editpdf.ink/og-image.png">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="editpdf.ink - In-Browser Privacy Tools">
+<meta name="twitter:description" content="Process PDFs, scrub EXIF tags, extract OCR text, and encrypt snippets completely offline in your browser.">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EXIF Metadata Remover & Legal Compliance | editpdf.ink</title>
+  <meta name="description" content="Scrub GPS tags, timestamps, and camera details from photos prior to sharing online. Client-side privacy execution.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans">
+
+  <header class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="/" class="font-extrabold text-xl tracking-tight">editpdf<span class="text-indigo-600">.ink</span></a>
+      <span class="text-xs bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full font-semibold">100% Client-Side</span>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-8 space-y-6">
+
+    <!-- Legal Warning -->
+    <div class="bg-amber-50 dark:bg-amber-950/40 border-l-4 border-amber-500 p-4 rounded-xl text-xs sm:text-sm text-amber-900 dark:text-amber-200">
+      <p class="font-bold mb-1">⚖️ LEGAL COMPLIANCE NOTICE (India & International Laws):</p>
+      <p class="mb-2">Stripping or modifying metadata on photos intended for official legal filings, insurance claims, or police evidence is illegal.</p>
+      <ul class="list-disc list-inside space-y-0.5 text-xs opacity-90">
+        <li><strong>India:</strong> Tampering with electronic evidence is penalised under <strong>Sections 65 & 66 of the IT Act, 2000</strong> and <strong>Bharatiya Sakshya Adhiniyam / Sec 65B Evidence Act</strong>.</li>
+        <li><strong>Global:</strong> Violates <strong>US Federal Rules of Evidence (Rule 902)</strong> and <strong>UK Fraud Act 2006</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <h1 class="text-2xl font-bold mb-2">EXIF Metadata Scrubber</h1>
+      <p class="text-sm text-gray-500 mb-6">Inspect and remove hidden camera, timestamp, and location metadata from your photos locally.</p>
+
+      <div id="dropzone" class="border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-indigo-500 rounded-2xl p-8 text-center cursor-pointer bg-gray-50/50 dark:bg-gray-900/30">
+        <input type="file" id="fileInput" class="hidden" accept="image/*">
+        <div class="text-4xl mb-2">📸</div>
+        <p class="font-semibold">Drag & drop photo to inspect metadata</p>
+      </div>
+    </div>
+
+    <div id="results" class="hidden bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 space-y-4">
+      <h2 class="font-bold text-lg">Detected Image Tags</h2>
+      <div id="dataBox" class="p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl font-mono text-xs overflow-x-auto max-h-60"></div>
+      <button id="scrubBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl">Scrub All Metadata & Download</button>
+    </div>
+  </main>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    let loadedFile = null;
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async (e) => {
+      if (!e.target.files.length) return;
+      loadedFile = e.target.files[0];
+
+      const metadata = await exifr.parse(loadedFile);
+      document.getElementById('results').classList.remove('hidden');
+      document.getElementById('dataBox').innerHTML = metadata 
+        ? `<pre>${JSON.stringify(metadata, null, 2)}</pre>`
+        : '<p class="text-emerald-500 font-semibold">No EXIF metadata detected in image!</p>';
+    });
+
+    document.getElementById('scrubBtn').addEventListener('click', () => {
+      if (!loadedFile) return;
+      const img = new Image();
+      img.src = URL.createObjectURL(loadedFile);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width; canvas.height = img.height;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+
+        const a = document.createElement('a');
+        a.download = 'cleaned_' + loadedFile.name;
+        a.href = canvas.toDataURL('image/jpeg', 0.95);
+        a.click();
+      };
+    });
+  </script>
+</body>
+</html>
