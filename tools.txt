@@ -14,3 +14,4 @@ Image Resizer | imate-resizer.html | Resize and compress images in your browser 
 OCR | ocr.html | Extract text from images and scans | scan-text
 PDF Watermark | pdf-watermark.html | Add a watermark to your PDF pages | droplet
 QR Generator & Decoder | qr-generator-decoder.html | Create and read QR codes | qrcode
+PDF ↔ Word Converter | pdf-word-converter.html | Convert PDF to Word and Word to PDF, keeps formatting | file-pdf
