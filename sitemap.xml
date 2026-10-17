@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://editpdf.ink/</loc><priority>1.0</priority></url>
+  <url><loc>https://editpdf.ink/ocr</loc><priority>0.8</priority></url>
+  <url><loc>https://editpdf.ink/exif-remover</loc><priority>0.8</priority></url>
+  <url><loc>https://editpdf.ink/image-resizer</loc><priority>0.8</priority></url>
+  <url><loc>https://editpdf.ink/pdf-watermark</loc><priority>0.8</priority></url>
+  <url><loc>https://editpdf.ink/qr-generator</loc><priority>0.8</priority></url>
+</urlset>
