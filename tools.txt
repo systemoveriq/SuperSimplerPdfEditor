@@ -9,6 +9,7 @@
 #  Add a new tool by adding a new line. No code changes needed.
 # ============================================================
 
+PDF Password Remover | pdf-password-remover.html | Remove the PDF's password | shield
 Super Edit | mutli-pdf-super-edit.html | Edit and compare multiple pdfs at a time | file-pdf
 EXIF Remover | exif-remover.html | Strip location and camera data from photos | shield
 Image Resizer | imate-resizer.html | Resize and compress images in your browser | image
