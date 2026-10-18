@@ -10,10 +10,11 @@
 # ============================================================
 
 PDF Password Remover | pdf-password-remover.html | Remove the PDF's password | shield
+Invoice Generator | invoice_generator.html | Generate your invoice |  droplet
 Super Edit | mutli-pdf-super-edit.html | Edit and compare multiple pdfs at a time | file-pdf
-EXIF Remover | exif-remover.html | Strip location and camera data from photos | shield
 Image Resizer | imate-resizer.html | Resize and compress images in your browser | image
 OCR | ocr.html | Extract text from images and scans | scan-text
 PDF Watermark | pdf-watermark.html | Add a watermark to your PDF pages | droplet
 QR Generator & Decoder | qr-generator-decoder.html | Create and read QR codes | qrcode
 PDF Compare | pdf-compare.html | Compare maximum 4 pdfs | file-pdf
+EXIF Remover | exif-remover.html | Strip location and camera data from photos | shield
