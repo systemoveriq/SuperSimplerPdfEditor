@@ -88,9 +88,24 @@ button{cursor:pointer;border:0;background:none}
 button:focus-visible,input:focus-visible,label:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .hide{display:none!important}
 header{height:56px;display:flex;align-items:center;gap:14px;padding:0 16px;background:var(--panel);border-bottom:1px solid var(--line);flex:none}
-.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:16px;letter-spacing:-.02em}
+.logo{display:grid;align-items:center;font-weight:800;font-size:16px;letter-spacing:-.02em}
 .logo i{width:30px;height:30px;border-radius:9px;background:var(--acc);color:#fff;display:grid;place-items:center;font-size:14px}
 .logo b{color:var(--acc)}
+/* logo rotator: editpdf.ink -> atralix -> powered by atralix (loops forever) */
+.logo .slide{grid-area:1/1;display:flex;align-items:center;gap:9px;white-space:nowrap;opacity:0;animation:logoSwap 9s ease-in-out infinite both}
+.logo .s2{animation-delay:3s}
+.logo .s3{animation-delay:6s}
+.logo .amark{width:30px;height:30px;border-radius:9px;background:#3D4DFF;display:grid;place-items:center;flex:none}
+.logo .amark svg{width:17px;height:17px;fill:#FFD84D}
+.logo .s3 .amark{animation:logoPop 9s ease-in-out 6s infinite both}
+.logo em{font-style:normal}
+.logo .stack{display:grid;gap:2px}
+.logo .stack small{font-size:10.5px;font-weight:600;letter-spacing:0;line-height:1;color:var(--mute)}
+.logo .stack em{font-size:15px;line-height:1}
+@keyframes logoSwap{0%{opacity:0;transform:translateY(8px)}5%,28%{opacity:1;transform:none}33%,100%{opacity:0;transform:translateY(-8px)}}
+@keyframes logoPop{0%,4%{transform:scale(1)}9%{transform:scale(1.18) rotate(-6deg)}15%,100%{transform:scale(1)}}
+@media(max-width:760px){.logo .atx{display:none}}
+@media(prefers-reduced-motion:reduce){.logo{display:flex;gap:14px}.logo .slide{animation:none;opacity:1}.logo .s2{display:none}.logo .s3 .amark{animation:none}}
 #fname{background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:7px 11px;width:260px;max-width:30vw}
 .sp{flex:1}
 .grp{display:flex;align-items:center;gap:2px}
@@ -247,7 +262,11 @@ details.adv summary{cursor:pointer;font-weight:700;margin-bottom:8px}
 </head>
 <body>
 <header>
-  <div class="logo"><i class="fa-solid fa-file-pdf"></i><span>editpdf.ink</span></div>
+  <div class="logo" role="img" aria-label="editpdf.ink, powered by Atralix">
+    <div class="slide s1" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i><span>editpdf.ink</span></div>
+    <div class="slide s2" aria-hidden="true"><div class="amark"><svg viewBox="0 0 100 100"><path d="M50 12 14 88h20l16-38 16 38h20z"/></svg></div><em class="atx">atralix</em></div>
+    <div class="slide s3" aria-hidden="true"><div class="amark"><svg viewBox="0 0 100 100"><path d="M50 12 14 88h20l16-38 16 38h20z"/></svg></div><div class="stack atx"><small>powered by</small><em>atralix</em></div></div>
+  </div>
   <input id="fname" value="Untitled.pdf" aria-label="File name" disabled>
   <div class="sp"></div>
   <div class="grp">
