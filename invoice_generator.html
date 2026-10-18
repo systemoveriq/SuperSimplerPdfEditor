@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice generator – editpdf.ink</title>
+    <meta name="theme-color" content="#14161a" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem("ss-theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")}catch(e){document.documentElement.dataset.theme="dark"}</script>
+    <!-- Pre-built utility styles (no CDN needed) -->
+    <style id="utilities">
+/* Tailwind-style base reset (static, no CDN) */
+*,::before,::after{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}
+html{line-height:1.5;-webkit-text-size-adjust:100%;tab-size:4;font-family:Manrope,system-ui,sans-serif}
+body{margin:0;line-height:inherit}
+h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}
+h1,h2,h3,h4,h5,h6,p,blockquote,dl,dd,hr,figure,pre{margin:0}
+ol,ul{list-style:none;margin:0;padding:0}
+a{color:inherit;text-decoration:inherit}
+b,strong{font-weight:bolder}
+table{text-indent:0;border-color:inherit;border-collapse:collapse}
+button,input,select,textarea{font-family:inherit;font-size:100%;font-weight:inherit;line-height:inherit;color:inherit;margin:0;padding:0}
+button,select{text-transform:none}
+button,[type=button],[type=submit]{-webkit-appearance:button;background-color:transparent;background-image:none}
+button,[role=button]{cursor:pointer}
+textarea{resize:vertical}
+input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}
+img,svg,video,canvas,audio,iframe,embed,object{display:block;vertical-align:middle}
+img,video{max-width:100%;height:auto}
+[hidden]{display:none}
+.absolute{position:absolute}
+.bg-blue-50{background-color:#eff6ff}
+.bg-slate-100{background-color:#f1f5f9}
+.bg-slate-50{background-color:#f8fafc}
+.bg-slate-900{background-color:#0f172a}
+.bg-transparent{background-color:transparent}
+.bg-white{background-color:#fff}
+.border{border-width:1px}
+.border-2{border-width:2px}
+.border-b{border-bottom-width:1px}
+.border-b-2{border-bottom-width:2px}
+.border-dashed{border-style:dashed}
+.border-slate-100{border-color:#f1f5f9}
+.border-slate-200{border-color:#e2e8f0}
+.border-slate-300{border-color:#cbd5e1}
+.border-t{border-top-width:1px}
+.border-transparent{border-color:transparent}
+.bottom-5{bottom:1.25rem}
+.cursor-crosshair{cursor:crosshair}
+.cursor-grab{cursor:grab}
+.cursor-pointer{cursor:pointer}
+.divide-slate-100>:not([hidden])~:not([hidden]){border-color:#f1f5f9}
+.divide-y>:not([hidden])~:not([hidden]){border-top-width:1px;border-bottom-width:0}
+.duration-300{transition-duration:.3s}
+.fixed{position:fixed}
+.flex-col{flex-direction:column}
+.font-black{font-weight:900}
+.font-bold{font-weight:700}
+.font-medium{font-weight:500}
+.font-semibold{font-weight:600}
+.gap-1\.5{gap:0.375rem}
+.gap-2{gap:0.5rem}
+.gap-6{gap:1.5rem}
+.gap-8{gap:2rem}
+.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}
+.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.h-16{height:4rem}
+.h-2{height:0.5rem}
+.h-20{height:5rem}
+.h-9{height:2.25rem}
+.h-full{height:100%}
+.inset-0{inset:0}
+.items-center{align-items:center}
+.items-end{align-items:flex-end}
+.items-start{align-items:flex-start}
+.justify-between{justify-content:space-between}
+.justify-center{justify-content:center}
+.max-h-14{max-height:3.5rem}
+.max-h-20{max-height:5rem}
+.max-w-7xl{max-width:80rem}
+.max-w-\[200px\]{max-width:200px}
+.mb-1{margin-bottom:0.25rem}
+.mb-2{margin-bottom:0.5rem}
+.mb-3{margin-bottom:0.75rem}
+.mb-4{margin-bottom:1rem}
+.mb-6{margin-bottom:1.5rem}
+.mb-8{margin-bottom:2rem}
+.min-h-screen{min-height:100vh}
+.mr-1{margin-right:0.25rem}
+.mt-1{margin-top:0.25rem}
+.mt-3{margin-top:0.75rem}
+.mt-4{margin-top:1rem}
+.mt-6{margin-top:1.5rem}
+.mt-8{margin-top:2rem}
+.mx-auto{margin-left:auto;margin-right:auto}
+.my-2{margin-top:.5rem;margin-bottom:.5rem}
+.object-contain{object-fit:contain}
+.opacity-0{opacity:0}
+.overflow-hidden{overflow:hidden}
+.overflow-x-auto{overflow-x:auto}
+.p-0\.5{padding:0.125rem}
+.p-1{padding:0.25rem}
+.p-2{padding:0.5rem}
+.p-2\.5{padding:0.625rem}
+.p-3{padding:0.75rem}
+.p-4{padding:1rem}
+.p-5{padding:1.25rem}
+.p-8{padding:2rem}
+.pb-12{padding-bottom:3rem}
+.placeholder-slate-300::placeholder{color:#cbd5e1}
+.placeholder-slate-400::placeholder{color:#94a3b8}
+.pt-2{padding-top:0.5rem}
+.pt-3{padding-top:0.75rem}
+.pt-4{padding-top:1rem}
+.pt-6{padding-top:1.5rem}
+.pt-8{padding-top:2rem}
+.px-1{padding-left:0.25rem;padding-right:0.25rem}
+.px-2{padding-left:0.5rem;padding-right:0.5rem}
+.px-3{padding-left:0.75rem;padding-right:0.75rem}
+.px-4{padding-left:1rem;padding-right:1rem}
+.py-1{padding-top:0.25rem;padding-bottom:0.25rem}
+.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}
+.py-2{padding-top:0.5rem;padding-bottom:0.5rem}
+.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}
+.relative{position:relative}
+.resize-none{resize:none}
+.right-5{right:1.25rem}
+.rounded{border-radius:.25rem}
+.rounded-2xl{border-radius:1rem}
+.rounded-full{border-radius:9999px}
+.rounded-lg{border-radius:.5rem}
+.rounded-xl{border-radius:.75rem}
+.shadow-lg{box-shadow:0 10px 15px -3px rgb(0 0 0 / .1),0 4px 6px -4px rgb(0 0 0 / .1)}
+.shadow-sm{box-shadow:0 1px 2px 0 rgb(0 0 0 / .05)}
+.space-x-1>:not([hidden])~:not([hidden]){margin-left:0.25rem}
+.space-x-2>:not([hidden])~:not([hidden]){margin-left:0.5rem}
+.space-y-1\.5>:not([hidden])~:not([hidden]){margin-top:0.375rem}
+.space-y-2>:not([hidden])~:not([hidden]){margin-top:0.5rem}
+.space-y-3>:not([hidden])~:not([hidden]){margin-top:0.75rem}
+.space-y-4>:not([hidden])~:not([hidden]){margin-top:1rem}
+.space-y-6>:not([hidden])~:not([hidden]){margin-top:1.5rem}
+.text-3xl{font-size:1.875rem;line-height:2.25rem}
+.text-\[10px\]{font-size:10px}
+.text-amber-600{color:#d97706}
+.text-base{font-size:1rem;line-height:1.5rem}
+.text-blue-600{color:#2563eb}
+.text-center{text-align:center}
+.text-emerald-400{color:#34d399}
+.text-emerald-600{color:#059669}
+.text-left{text-align:left}
+.text-lg{font-size:1.125rem;line-height:1.75rem}
+.text-purple-600{color:#9333ea}
+.text-right{text-align:right}
+.text-rose-500{color:#f43f5e}
+.text-slate-300{color:#cbd5e1}
+.text-slate-400{color:#94a3b8}
+.text-slate-500{color:#64748b}
+.text-slate-600{color:#475569}
+.text-slate-700{color:#334155}
+.text-slate-800{color:#1e293b}
+.text-sm{font-size:.875rem;line-height:1.25rem}
+.text-white{color:#fff}
+.text-xl{font-size:1.25rem;line-height:1.75rem}
+.text-xs{font-size:.75rem;line-height:1rem}
+.tracking-tight{letter-spacing:-.025em}
+.tracking-wide{letter-spacing:.025em}
+.tracking-wider{letter-spacing:.05em}
+.transform{transform:translate(var(--tw-translate-x,0),var(--tw-translate-y,0))}
+.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}
+.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}
+.translate-y-20{--tw-translate-y:5rem;transform:translate(var(--tw-translate-x,0),var(--tw-translate-y,0))}
+.uppercase{text-transform:uppercase}
+.w-12{width:3rem}
+.w-16{width:4rem}
+.w-20{width:5rem}
+.w-24{width:6rem}
+.w-28{width:7rem}
+.w-32{width:8rem}
+.w-40{width:10rem}
+.w-6{width:1.5rem}
+.w-8{width:2rem}
+.w-full{width:100%}
+.z-50{z-index:50}
+.block{display:block}
+.inline-block{display:inline-block}
+.flex{display:flex}
+.grid{display:grid}
+.hidden{display:none}
+.focus\:bg-slate-50:focus{background-color:#f8fafc}
+.focus\:bg-white:focus{background-color:#fff}
+.focus\:border-slate-300:focus{border-color:#cbd5e1}
+.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}
+.focus\:ring-2:focus{box-shadow:0 0 0 2px var(--tw-ring-color,rgb(59 130 246 / .5))}
+.focus\:ring-blue-500:focus{--tw-ring-color:#3b82f6}
+.hover\:bg-blue-100:hover{background-color:#dbeafe}
+.hover\:bg-blue-50:hover{background-color:#eff6ff}
+.hover\:bg-slate-100:hover{background-color:#f1f5f9}
+.hover\:bg-slate-200:hover{background-color:#e2e8f0}
+.hover\:border-blue-500:hover{border-color:#3b82f6}
+.hover\:border-slate-300:hover{border-color:#cbd5e1}
+.hover\:text-rose-500:hover{color:#f43f5e}
+.hover\:text-slate-500:hover{color:#64748b}
+.hover\:underline:hover{text-decoration-line:underline}
+@media (min-width:640px){
+.sm\:col-span-6{grid-column:span 6/span 6}
+.sm\:grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}
+.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.sm\:justify-end{justify-content:flex-end}
+.sm\:mt-0{margin-top:0}
+.sm\:p-12{padding:3rem}
+.sm\:px-6{padding-left:1.5rem;padding-right:1.5rem}
+.sm\:text-4xl{font-size:2.25rem;line-height:2.5rem}
+.sm\:text-right{text-align:right}
+}
+@media (min-width:1024px){
+.lg\:col-span-4{grid-column:span 4/span 4}
+.lg\:col-span-8{grid-column:span 8/span 8}
+.lg\:grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}
+.lg\:px-8{padding-left:2rem;padding-right:2rem}
+}
+    </style>
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg:#14161a; --pn:#1b1e24; --rs:#242830; --ink:#e8eaee; --mu:#8b93a1; --ln:#2c313a;
+            --ac:#ff6a3d; --accbg:rgba(255,106,61,.14); --acr:rgba(255,106,61,.45); --ws:#0e1013;
+            --brand-color: #e24d1a;
+            --brand-color-light: #fdeee8;
+        }
+        :root[data-theme=light] {
+            color-scheme: light;
+            --bg:#f2f3f6; --pn:#fff; --rs:#eceff4; --ink:#1a1d24; --mu:#5d6676; --ln:#d8dde6;
+            --ac:#e24d1a; --accbg:rgba(226,77,26,.12); --acr:rgba(226,77,26,.45); --ws:#d3d8e0;
+        }
+
+        body {
+            font-family: 'Manrope', system-ui, sans-serif;
+            font-weight: 500;
+            background-color: var(--bg);
+            color: var(--ink);
+        }
+
+        /* Dynamic accent colors */
+        .dynamic-brand-bg { background-color: var(--brand-color) !important; }
+        .dynamic-brand-text { color: var(--brand-color) !important; }
+        .dynamic-brand-border { border-color: var(--brand-color) !important; }
+
+        /* Print formatting */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 12pt;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .invoice-sheet {
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                border: none !important;
+            }
+            .page-break {
+                page-break-after: always;
+            }
+            input, textarea, select {
+                border: none !important;
+                background: transparent !important;
+                appearance: none !important;
+                -webkit-appearance: none !important;
+                padding: 0 !important;
+                resize: none !important;
+            }
+            .hide-placeholder::placeholder {
+                color: transparent !important;
+            }
+        }
+
+        /* Sheet Shadow & Dimensions */
+        .invoice-sheet {
+            min-height: 297mm;
+            width: 210mm;
+            background: white;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 1024px) {
+            .invoice-sheet {
+                width: 100%;
+                min-height: auto;
+            }
+        }
+
+        /* Drag-and-Drop styling */
+        .dragging {
+            opacity: 0.5;
+            background-color: #eceff4;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track { background: var(--pn); }
+        ::-webkit-scrollbar-thumb { background: var(--mu); border-radius: 4px; border: 1px solid var(--pn); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--ink); }
+
+        /* ===== editpdf.ink theme layer ===== */
+        :focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+        .invoice-sheet { color-scheme: light; color: #1f2937; border-radius: 6px !important; }
+        .invoice-sheet input, .invoice-sheet textarea, .invoice-sheet select { color-scheme: light; }
+
+        /* top bar */
+        .topbar { position: sticky; top: 0; z-index: 30; background: var(--pn); border-bottom: 1px solid var(--ln); }
+        .topbar-in { max-width: 1280px; margin: 0 auto; height: 56px; padding: 0 16px; display: flex; align-items: center; gap: 14px; }
+        .vr { width: 1px; height: 22px; background: var(--ln); }
+        .page-name { font-weight: 700; color: var(--mu); font-size: 14px; }
+        .sp { flex: 1; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 9px; font-weight: 700; font-size: 13px; background: var(--rs); border: 1px solid var(--ln); color: var(--ink); cursor: pointer; white-space: nowrap; }
+        .btn:hover { border-color: var(--mu); }
+        .btn.pri { background: var(--ac); border-color: var(--ac); color: #1a0b05; font-weight: 800; }
+        .btn.pri:hover { filter: brightness(1.08); }
+        .btn.ib { padding: 0; width: 36px; height: 36px; justify-content: center; }
+
+        /* rotating logo: editpdf.ink -> atralix -> powered by atralix */
+        .logo { display: grid; align-items: center; font-weight: 800; font-size: 16px; letter-spacing: -.02em; }
+        .logo .slide { grid-area: 1/1; display: flex; align-items: center; gap: 9px; white-space: nowrap; opacity: 0; animation: logoSwap 9s ease-in-out infinite both; }
+        .logo .s2 { animation-delay: 3s; } .logo .s3 { animation-delay: 6s; }
+        .logo i { width: 30px; height: 30px; border-radius: 9px; background: var(--ac); color: #fff; display: grid; place-items: center; font-style: normal; }
+        .logo i svg { width: 16px; height: 16px; }
+        .logo .amark { width: 30px; height: 30px; border-radius: 9px; background: #3D4DFF; display: grid; place-items: center; flex: none; }
+        .logo .amark svg { width: 17px; height: 17px; fill: #FFD84D; }
+        .logo .s3 .amark { animation: logoPop 9s ease-in-out 6s infinite both; }
+        .logo em { font-style: normal; } .logo .stack { display: grid; gap: 2px; }
+        .logo .stack small { font-size: 10.5px; font-weight: 600; letter-spacing: 0; line-height: 1; color: var(--mu); }
+        .logo .stack em { font-size: 15px; line-height: 1; }
+        @keyframes logoSwap { 0% { opacity: 0; transform: translateY(8px) } 5%, 28% { opacity: 1; transform: none } 33%, 100% { opacity: 0; transform: translateY(-8px) } }
+        @keyframes logoPop { 0%, 4% { transform: scale(1) } 9% { transform: scale(1.18) rotate(-6deg) } 15%, 100% { transform: scale(1) } }
+        @media (max-width: 720px) { .logo .atx, .page-name, .vr, .btn .bl { display: none; } }
+        @media (prefers-reduced-motion: reduce) { .logo { display: flex; gap: 14px; } .logo .slide { animation: none; opacity: 1; } .logo .s2 { display: none; } .logo .s3 .amark { animation: none; } }
+
+        /* stage behind the paper */
+        .stage { background: var(--ws); border: 1px solid var(--ln); border-radius: 16px; padding: 24px; overflow-x: auto; }
+        @media (max-width: 1024px) { .stage { padding: 12px; } }
+
+        /* sidebar panels */
+        @media (min-width: 1024px) { #side { position: sticky; top: 72px; max-height: calc(100vh - 88px); overflow-y: auto; padding-right: 4px; scrollbar-width: thin; } }
+        #side .bg-white { background: var(--pn) !important; border-color: var(--ln) !important; box-shadow: none !important; border-radius: 16px; }
+        #side h2 { color: var(--ink) !important; text-transform: none !important; letter-spacing: 0 !important; font-size: 14px; font-weight: 800; }
+        #side .text-slate-800, #side .text-slate-700 { color: var(--ink) !important; }
+        #side .text-slate-600, #side .text-slate-500 { color: var(--mu) !important; }
+        #side .text-blue-600 { color: var(--ac) !important; }
+        #side .border-slate-100, #side .border-slate-200 { border-color: var(--ln) !important; }
+        #side .bg-slate-50 { background: var(--rs) !important; color: var(--ink) !important; border-color: var(--ln) !important; }
+        #side .bg-slate-100 { background: var(--rs) !important; color: var(--ink) !important; border: 1px solid var(--ln); }
+        #side .bg-slate-100:hover { border-color: var(--mu); }
+        #side input[type=checkbox] { accent-color: var(--ac); width: 15px; height: 15px; }
+        #side input[type=color] { background: none; border-color: var(--ln) !important; }
+        #side select option { background: var(--pn); color: var(--ink); }
+        #side .preset-btn { background: var(--rs); border-color: var(--ln) !important; }
+        #side .preset-btn:hover { border-color: var(--mu) !important; background: var(--rs) !important; }
+        #side .preset-btn.active { background: var(--accbg) !important; border-color: var(--ac) !important; box-shadow: inset 0 0 0 1px var(--acr); }
+        #side .swatch { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--ln); }
+        #side .swatch:hover { border-color: var(--ink); }
+        .tip { background: var(--accbg); border: 1px solid var(--acr); border-radius: 16px; padding: 14px 16px; font-size: 12.5px; line-height: 1.5; color: var(--ink); }
+        .tip b { color: var(--ac); }
+
+        /* on-paper helper button + toast */
+        #invoiceSheet .bg-blue-50 { background: var(--accbg) !important; color: var(--ac) !important; }
+        #invoiceSheet .bg-blue-50:hover { background: var(--acr) !important; }
+        #toast { background: var(--pn) !important; color: var(--ink) !important; border: 1px solid var(--ln); }
+
+        @media print {
+            .stage { background: none !important; border: 0 !important; padding: 0 !important; overflow: visible !important; }
+            body { background: #fff !important; }
+        }
+
+        .ic{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:-.125em;flex:none}
+        /* ===== format engine ===== */
+        @media (min-width:1025px){#invoiceSheet.invoice-sheet{width:var(--sw,210mm);min-height:var(--sh,297mm)}}
+        #invoiceSheet{padding:var(--pad,12mm)!important;font-family:var(--ff,inherit)}
+        #invoiceSheet .text-xs{font-size:calc(.75rem*var(--fs,1))}
+        #invoiceSheet .text-sm{font-size:calc(.875rem*var(--fs,1))}
+        #invoiceSheet .text-base{font-size:calc(1rem*var(--fs,1))}
+        #invoiceSheet .text-lg{font-size:calc(1.125rem*var(--fs,1))}
+        #invoiceSheet .text-xl{font-size:calc(1.25rem*var(--fs,1))}
+        #invoiceSheet .text-3xl{font-size:calc(1.875rem*var(--fs,1))}
+        #invoiceSheet .text-\[10px\]{font-size:calc(10px*var(--fs,1))}
+        @media (min-width:640px){#invoiceSheet .sm\:text-4xl{font-size:calc(2.25rem*var(--fs,1))}}
+        #invoiceSheet tbody td{padding-top:calc(.5rem*var(--dens,1));padding-bottom:calc(.5rem*var(--dens,1))}
+        #invoiceSheet .rounded-xl,#invoiceSheet .rounded-lg,#invoiceSheet .rounded{border-radius:var(--rad,12px)}
+        #invoiceSheet #logoPreview{max-height:var(--logoh,80px);max-width:none}
+        #invoiceSheet #logoContainer{height:var(--logoh,80px);width:calc(var(--logoh,80px)*2)}
+        #invoiceSheet .hdr-swap>:first-child{order:2;text-align:right}#invoiceSheet .hdr-swap>:last-child{order:1;text-align:left}
+        #invoiceSheet .hdr-swap input,#invoiceSheet .hdr-swap textarea{text-align:right}
+        #invoiceSheet .hdr-swap>:last-child input{text-align:left}
+        #invoiceSheet[data-layout=band] .dynamic-brand-bg.h-2{height:30px;border-radius:0;width:calc(100% + 2*var(--pad,12mm));margin:calc(-1*var(--pad,12mm)) calc(-1*var(--pad,12mm)) 2rem}
+        #invoiceSheet[data-layout=minimal] .dynamic-brand-bg.h-2{display:none}
+        #invoiceSheet[data-layout=minimal] input.font-black{font-weight:600;letter-spacing:.04em}
+        #invoiceSheet[data-layout=sidebar]{border-left:10px solid var(--brand-color)!important}
+        #invoiceSheet[data-layout=sidebar] .dynamic-brand-bg.h-2{display:none}
+        #itemsTable tbody tr{border-color:transparent}
+        #invoiceSheet[data-table=lines] tbody tr{border-color:#f1f5f9}
+        #invoiceSheet[data-table=striped] tbody tr:nth-child(even){background:rgba(100,116,139,.09)}
+        #invoiceSheet[data-table=boxed] th,#invoiceSheet[data-table=boxed] td{border:1px solid #cbd5e1}
+        #invoiceSheet[data-table=fill] thead tr{background:var(--brand-color);border-color:var(--brand-color)}
+        #invoiceSheet[data-table=fill] thead th,#invoiceSheet[data-table=fill] thead input{color:#fff!important}
+        .fmt-hide{display:none!important}
+        @media print{.footer-empty{display:none!important}}
+        #invFooter{font:inherit;color:#94a3b8}
+        @media screen{.lbl-edit{outline:1px dashed var(--ac);outline-offset:2px;cursor:text}}
+        @media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+        /* format panel */
+        .fmt .row{display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:center;font-size:12px;margin-top:9px;color:var(--mu);font-weight:600}
+        .fmt .row.two{grid-template-columns:1fr 1fr}
+        .fmt select{width:100%}.fmt input[type=range]{width:100%;accent-color:var(--ac)}
+        .fmt .seg4{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px}
+        .fb{background:var(--rs);border:1px solid var(--ln);border-radius:9px;padding:7px 2px;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer}
+        .fb:hover{border-color:var(--mu)}.fb.on{background:var(--accbg);border-color:var(--ac);color:var(--ac)}
+        .fmt h3{font-size:12px;font-weight:800;color:var(--ink);margin-top:16px}
+        .fmt .chk{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink);font-weight:500;margin-top:7px}
+        .fmt .chk input{accent-color:var(--ac);width:15px;height:15px}
+        .fmt .cols2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol><symbol id="i-boxes-packing" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></symbol><symbol id="i-layer-group" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 12 10 5 10-5M2 17l10 5 10-5"/></symbol><symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol><symbol id="i-circle-half-stroke" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor"/></symbol><symbol id="i-cloud-arrow-up" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5M12 3v12"/></symbol><symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5M12 3v12"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-file-arrow-down" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v5m0 0-2-2m2 2 2-2"/></symbol><symbol id="i-file-export" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M10 15l4-4m0 0h-3m3 0v3"/></symbol><symbol id="i-grip-vertical" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="9" cy="6" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="18" r="1.4"/></g></symbol><symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 22a10 10 0 1 1 10-10c0 3-2 4-4 4h-2a2 2 0 0 0-1 3.7c.6.6.4 2.3-3 2.3z"/><circle cx="7.5" cy="11" r="1" fill="currentColor"/><circle cx="12" cy="7" r="1" fill="currentColor"/><circle cx="16.5" cy="10" r="1" fill="currentColor"/></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-rotate-left" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol><symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol><symbol id="i-trash-can" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></symbol><symbol id="i-wand-magic-sparkles" viewBox="0 0 24 24"><path d="m15 4 5 5L8 21l-5-5z"/><path d="M5 3v3M3.5 4.5h3M19 15v3M17.5 16.5h3"/></symbol><symbol id="i-table-layout" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></symbol></defs></svg>
+
+    <!-- Top Navigation Header -->
+    <header class="topbar no-print">
+        <div class="topbar-in">
+            <div class="logo" role="img" aria-label="editpdf.ink, powered by Atralix">
+                <div class="slide s1" aria-hidden="true"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg></i><span>editpdf.ink</span></div>
+                <div class="slide s2" aria-hidden="true"><div class="amark"><svg viewBox="0 0 100 100"><path d="M50 12 14 88h20l16-38 16 38h20z"/></svg></div><em class="atx">atralix</em></div>
+                <div class="slide s3" aria-hidden="true"><div class="amark"><svg viewBox="0 0 100 100"><path d="M50 12 14 88h20l16-38 16 38h20z"/></svg></div><div class="stack atx"><small>powered by</small><em>atralix</em></div></div>
+            </div>
+            <span class="vr"></span>
+            <span class="page-name">Invoice generator</span>
+            <div class="sp"></div>
+            <button type="button" onclick="loadSampleData()" class="btn"><svg class="ic " style="color:var(--ac)" aria-hidden="true"><use href="#i-wand-magic-sparkles"/></svg><span class="bl">Load sample</span></button>
+            <button type="button" onclick="clearInvoice()" class="btn"><svg class="ic " aria-hidden="true"><use href="#i-rotate-left"/></svg><span class="bl">Reset</span></button>
+            <button type="button" id="themeBtn" class="btn ib" title="Switch light / dark theme" aria-label="Switch light or dark theme"><svg class="ic " aria-hidden="true"><use href="#i-circle-half-stroke"/></svg></button>
+            <button type="button" onclick="window.print()" class="btn pri" title="In the print window, choose Save as PDF"><svg class="ic " aria-hidden="true"><use href="#i-file-arrow-down"/></svg><span class="bl">Save as PDF</span></button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            <!-- CONTROL PANEL SIDEBAR (Left 4 columns) -->
+            <aside id="side" class="lg:col-span-4 space-y-6 no-print">
+
+                <div class="tip"><b>How it works:</b> click any text on the invoice to edit it. When you are done, press <b>Save as PDF</b> and pick “Save as PDF” as the printer. Your work is saved in this browser automatically.</div>
+
+                
+                
+                <div class="fmt bg-white p-5 rounded-2xl border border-slate-200">
+                    <h2 class="flex items-center gap-2"><svg class="ic text-blue-600" aria-hidden="true"><use href="#i-table-layout"/></svg> Format &amp; layout</h2>
+                    <div class="seg4" id="layBtns"><button class="fb" data-lay="classic">Classic</button><button class="fb" data-lay="band">Band</button><button class="fb" data-lay="minimal">Minimal</button><button class="fb" data-lay="sidebar">Side bar</button></div>
+                    <label class="row">Table<select data-f="table" class="bg-slate-50 text-xs p-2 rounded-lg border border-slate-200"><option value="lines">Lines</option><option value="striped">Striped</option><option value="boxed">Boxed grid</option><option value="fill">Colored header</option><option value="plain">Plain</option></select></label>
+                    <label class="row">Page size<select data-f="size" class="bg-slate-50 text-xs p-2 rounded-lg border border-slate-200"><option>A4</option><option>Letter</option><option>A5</option><option>Legal</option></select></label>
+                    <label class="row">Orientation<select data-f="orient" class="bg-slate-50 text-xs p-2 rounded-lg border border-slate-200"><option value="portrait">Portrait</option><option value="landscape">Landscape</option></select></label>
+                    <label class="row">Font<select data-f="font" class="bg-slate-50 text-xs p-2 rounded-lg border border-slate-200"><option value="Manrope, system-ui, sans-serif">Manrope</option><option value="system-ui, Arial, sans-serif">System sans</option><option value="Georgia, 'Times New Roman', serif">Serif</option><option value="ui-monospace, Menlo, Consolas, monospace">Monospace</option></select></label>
+                    <label class="row">Margins <span id="v-margin"></span><input type="range" data-f="margin" min="6" max="30" step="1"></label>
+                    <label class="row">Text size <span id="v-fs"></span><input type="range" data-f="fs" min="80" max="130" step="5"></label>
+                    <label class="row">Row spacing <span id="v-dens"></span><input type="range" data-f="dens" min="50" max="220" step="10"></label>
+                    <label class="row">Corners <span id="v-rad"></span><input type="range" data-f="rad" min="0" max="24" step="2"></label>
+                    <label class="row">Logo height <span id="v-logo"></span><input type="range" data-f="logo" min="40" max="160" step="5"></label>
+                    <label class="chk"><input type="checkbox" data-f="swap"> Swap company and invoice details</label>
+                    <h3>Show these fields</h3>
+                    <div class="cols2" id="hideBox"></div>
+                    <h3>Wording</h3>
+                    <label class="chk"><input type="checkbox" id="editLbl"> Edit labels on the invoice (click any label)</label>
+                    <div class="cols2" style="margin-top:12px;gap:8px"><button class="fb" id="fmtSave">Save format</button><label class="fb" style="text-align:center">Load format<input type="file" id="fmtLoad" accept=".json" hidden></label></div>
+                    <button class="fb" id="fmtReset" style="width:100%;margin-top:8px">Reset format</button>
+                </div>
+
+                <!-- Industry Presets & Column Toggles -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <svg class="ic text-blue-600" aria-hidden="true"><use href="#i-sliders"/></svg> Industry Template Presets
+                    </h2>
+                    
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <button onclick="applyPreset('standard')" class="preset-btn text-left p-2.5 text-xs border rounded-xl hover:border-blue-500 hover:bg-blue-50 transition active border-slate-200">
+                            <svg class="ic text-blue-600 mb-1 block text-sm" aria-hidden="true"><use href="#i-briefcase"/></svg>
+                            <span class="font-semibold block text-slate-800">Standard B2B</span>
+                            <span class="text-slate-500 text-[10px]">Qty & Rate</span>
+                        </button>
+                        <button onclick="applyPreset('services')" class="preset-btn text-left p-2.5 text-xs border rounded-xl hover:border-blue-500 hover:bg-blue-50 transition border-slate-200">
+                            <svg class="ic text-purple-600 mb-1 block text-sm" aria-hidden="true"><use href="#i-clock"/></svg>
+                            <span class="font-semibold block text-slate-800">Freelance / Hourly</span>
+                            <span class="text-slate-500 text-[10px]">Hours & Rate</span>
+                        </button>
+                        <button onclick="applyPreset('products')" class="preset-btn text-left p-2.5 text-xs border rounded-xl hover:border-blue-500 hover:bg-blue-50 transition border-slate-200">
+                            <svg class="ic text-emerald-600 mb-1 block text-sm" aria-hidden="true"><use href="#i-boxes-packing"/></svg>
+                            <span class="font-semibold block text-slate-800">Retail & SKU</span>
+                            <span class="text-slate-500 text-[10px]">SKU, Tax, Discounts</span>
+                        </button>
+                        <button onclick="applyPreset('custom')" class="preset-btn text-left p-2.5 text-xs border rounded-xl hover:border-blue-500 hover:bg-blue-50 transition border-slate-200">
+                            <svg class="ic text-amber-600 mb-1 block text-sm" aria-hidden="true"><use href="#i-layer-group"/></svg>
+                            <span class="font-semibold block text-slate-800">Custom Columns</span>
+                            <span class="text-slate-500 text-[10px]">Full Control</span>
+                        </button>
+                    </div>
+
+                    <!-- Fine-grained column toggle list -->
+                    <div class="border-t border-slate-100 pt-3 mt-3">
+                        <label class="text-xs font-semibold text-slate-600 mb-2 block">Visible Line Columns:</label>
+                        <div class="space-y-1.5 text-xs text-slate-700">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="col-sku" onchange="toggleColumn('sku')" class="rounded text-blue-600 focus:ring-blue-500">
+                                <span>Item SKU / Code</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="col-custom" onchange="toggleColumn('custom')" class="rounded text-blue-600 focus:ring-blue-500">
+                                <span>Custom Field (e.g., Phase/Date)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="col-itemdiscount" onchange="toggleColumn('itemdiscount')" class="rounded text-blue-600 focus:ring-blue-500">
+                                <span>Per-Item Discount (%)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" id="col-itemtax" onchange="toggleColumn('itemtax')" class="rounded text-blue-600 focus:ring-blue-500">
+                                <span>Per-Item Tax</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theme & Styling Options -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <svg class="ic text-blue-600" aria-hidden="true"><use href="#i-palette"/></svg> Styling & Theme
+                    </h2>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Accent Color</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="color" id="primaryColor" value="#e24d1a" onchange="updateThemeColor(this.value)" class="h-9 w-12 rounded cursor-pointer border border-slate-200">
+                                <div class="flex space-x-1">
+                                    <button onclick="updateThemeColor('#e24d1a')" class="swatch" style="background:#e24d1a" aria-label="Orange"></button>
+                                    <button onclick="updateThemeColor('#2563eb')" class="swatch" style="background:#2563eb" aria-label="Blue"></button>
+                                    <button onclick="updateThemeColor('#059669')" class="swatch" style="background:#059669"></button>
+                                    <button onclick="updateThemeColor('#7c3aed')" class="swatch" style="background:#7c3aed"></button>
+                                    <button onclick="updateThemeColor('#d97706')" class="swatch" style="background:#d97706"></button>
+                                    <button onclick="updateThemeColor('#0f172a')" class="swatch" style="background:#0f172a"></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Currency Symbol & Code</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <select id="currencySelect" onchange="changeCurrency(this.value)" class="text-xs p-2 rounded-lg border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="$">USD ($)</option>
+                                    <option value="€">EUR (€)</option>
+                                    <option value="£">GBP (£)</option>
+                                    <option value="₹">INR (₹)</option>
+                                    <option value="¥">JPY/CNY (¥)</option>
+                                    <option value="A$">AUD (A$)</option>
+                                    <option value="C$">CAD (C$)</option>
+                                    <option value="custom">Custom...</option>
+                                </select>
+                                <input type="text" id="customCurrency" placeholder="Symbol" oninput="updateCustomCurrency(this.value)" class="text-xs p-2 rounded-lg border border-slate-200 bg-slate-50 focus:outline-none hidden">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Toggles -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <svg class="ic text-blue-600" aria-hidden="true"><use href="#i-eye"/></svg> Optional Sections
+                    </h2>
+                    <div class="space-y-2 text-xs text-slate-700">
+                        <label class="flex items-center justify-between cursor-pointer">
+                            <span>Shipping / Ship To Address</span>
+                            <input type="checkbox" id="toggleShipping" onchange="toggleSection('shipping-section', this.checked)" class="rounded text-blue-600">
+                        </label>
+                        <label class="flex items-center justify-between cursor-pointer">
+                            <span>Payment Instructions</span>
+                            <input type="checkbox" id="togglePayment" checked onchange="toggleSection('payment-section', this.checked)" class="rounded text-blue-600">
+                        </label>
+                        <label class="flex items-center justify-between cursor-pointer">
+                            <span>Terms & Conditions / Notes</span>
+                            <input type="checkbox" id="toggleNotes" checked onchange="toggleSection('notes-section', this.checked)" class="rounded text-blue-600">
+                        </label>
+                        <label class="flex items-center justify-between cursor-pointer">
+                            <span>Digital Signature Block</span>
+                            <input type="checkbox" id="toggleSignature" onchange="toggleSection('signature-section', this.checked)" class="rounded text-blue-600">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Data Management (Import / Export JSON) -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <svg class="ic text-blue-600" aria-hidden="true"><use href="#i-file-export"/></svg> Template Data
+                    </h2>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="exportJSON()" class="px-3 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition text-center flex items-center justify-center gap-1.5">
+                            <svg class="ic " aria-hidden="true"><use href="#i-download"/></svg> Save JSON
+                        </button>
+                        <label class="px-3 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition text-center cursor-pointer flex items-center justify-center gap-1.5">
+                            <svg class="ic " aria-hidden="true"><use href="#i-upload"/></svg> Load JSON
+                            <input type="file" id="importJsonInput" accept=".json" onchange="importJSON(event)" class="hidden">
+                        </label>
+                    </div>
+                </div>
+
+            </aside>
+
+            <!-- LIVE INVOICE CANVAS (Right 8 columns) -->
+            <section class="lg:col-span-8 stage flex justify-center">
+                
+                <!-- Printable A4 Sheet Sheet -->
+                <div id="invoiceSheet" class="invoice-sheet p-8 sm:p-12 rounded-xl relative border border-slate-200 flex flex-col justify-between">
+                    
+                    <div>
+                        <!-- Header Bar / Accent Line -->
+                        <div class="h-2 w-full dynamic-brand-bg mb-8 rounded-full"></div>
+
+                        <!-- Top Invoice Header (Company Info & Logo + Invoice Title/Meta) -->
+                        <div id="hdrGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                            <!-- Company Logo & Info -->
+                            <div>
+                                <div class="mb-3 group relative inline-block">
+                                    <div id="logoContainer" class="w-40 h-20 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center text-slate-400 bg-slate-50 cursor-pointer overflow-hidden hover:bg-slate-100 transition no-print">
+                                        <svg class="ic text-xl mb-1" aria-hidden="true"><use href="#i-cloud-arrow-up"/></svg>
+                                        <span class="text-[10px] font-medium">Upload Logo</span>
+                                        <input type="file" id="logoUpload" accept="image/*" onchange="handleLogoUpload(event)" class="absolute inset-0 opacity-0 cursor-pointer">
+                                    </div>
+                                    <img id="logoPreview" class="max-h-20 max-w-[200px] object-contain hidden mb-2" alt="Company Logo">
+                                    <button id="removeLogoBtn" onclick="removeLogo()" class="hidden no-print text-[10px] text-rose-500 hover:underline">Remove Logo</button>
+                                </div>
+
+                                <input type="text" id="compName" placeholder="Your Company Name" value="Apex Global Solutions Inc." class="font-bold text-xl text-slate-800 w-full focus:bg-slate-50 p-1 rounded focus:outline-none placeholder-slate-300">
+                                <input type="text" id="compSlogan" placeholder="Tagline / Business Type" value="Enterprise Consulting & Technology Services" class="text-xs text-slate-500 w-full focus:bg-slate-50 p-1 rounded focus:outline-none mb-2 placeholder-slate-300">
+                                
+                                <textarea id="compAddress" rows="3" placeholder="Company Address, Tax ID, Registration Number" class="text-xs text-slate-600 w-full focus:bg-slate-50 p-1 rounded focus:outline-none resize-none placeholder-slate-300">100 Innovation Way, Suite 400
+New York, NY 10001
+Tax ID: US-987654321</textarea>
+                            </div>
+
+                            <!-- Invoice Title & Key Meta Fields -->
+                            <div class="text-left sm:text-right flex flex-col justify-between">
+                                <div>
+                                    <input type="text" value="INVOICE" class="font-black text-3xl sm:text-4xl tracking-tight text-slate-800 sm:text-right w-full focus:outline-none focus:bg-slate-50 p-1 rounded dynamic-brand-text">
+                                </div>
+
+                                <div class="space-y-1.5 mt-4 sm:mt-0 text-xs">
+                                    <div class="flex sm:justify-end items-center space-x-2">
+                                        <span class="text-slate-500 font-medium">Invoice No:</span>
+                                        <input type="text" id="invNumber" value="INV-2026-001" class="font-bold text-slate-800 w-28 sm:text-right focus:bg-slate-50 p-0.5 rounded focus:outline-none">
+                                    </div>
+                                    <div class="flex sm:justify-end items-center space-x-2">
+                                        <span class="text-slate-500 font-medium">P.O. Number:</span>
+                                        <input type="text" id="poNumber" value="PO-99281" class="text-slate-700 w-28 sm:text-right focus:bg-slate-50 p-0.5 rounded focus:outline-none">
+                                    </div>
+                                    <div class="flex sm:justify-end items-center space-x-2">
+                                        <span class="text-slate-500 font-medium">Issue Date:</span>
+                                        <input type="date" id="issueDate" class="text-slate-700 w-32 sm:text-right focus:bg-slate-50 p-0.5 rounded focus:outline-none">
+                                    </div>
+                                    <div class="flex sm:justify-end items-center space-x-2">
+                                        <span class="text-slate-500 font-medium">Due Date:</span>
+                                        <input type="date" id="dueDate" class="text-slate-700 w-32 sm:text-right focus:bg-slate-50 p-0.5 rounded focus:outline-none">
+                                    </div>
+                                    <div class="flex sm:justify-end items-center space-x-2">
+                                        <span class="text-slate-500 font-medium">Payment Terms:</span>
+                                        <input type="text" id="paymentTerms" value="Net 30 Days" class="text-slate-700 w-28 sm:text-right focus:bg-slate-50 p-0.5 rounded focus:outline-none">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Client Information (Bill To / Ship To) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-100 mb-8">
+                            <!-- Bill To -->
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Billed To:</h3>
+                                <input type="text" id="clientName" placeholder="Client Name / Business" value="Acme Corporation Ltd." class="font-bold text-sm text-slate-800 w-full bg-transparent focus:bg-white p-1 rounded focus:outline-none placeholder-slate-400">
+                                <textarea id="clientAddress" rows="3" placeholder="Client Address, Email, Phone, VAT ID" class="text-xs text-slate-600 w-full bg-transparent focus:bg-white p-1 rounded focus:outline-none resize-none mt-1 placeholder-slate-400">742 Evergreen Terrace
+Springfield, OR 97477
+Attn: John Doe (Accounts Payable)
+VAT: GB123456789</textarea>
+                            </div>
+
+                            <!-- Ship To (Optional) -->
+                            <div id="shipping-section" class="bg-slate-50 p-4 rounded-xl border border-slate-100 hidden">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Shipped To:</h3>
+                                <input type="text" id="shipName" placeholder="Recipient / Site Name" value="Acme Warehouse #4" class="font-bold text-sm text-slate-800 w-full bg-transparent focus:bg-white p-1 rounded focus:outline-none placeholder-slate-400">
+                                <textarea id="shipAddress" rows="3" placeholder="Shipping Address & Contact" class="text-xs text-slate-600 w-full bg-transparent focus:bg-white p-1 rounded focus:outline-none resize-none mt-1 placeholder-slate-400">123 Logistics Way, Dock B
+Springfield, OR 97477
+Contact: Mike (Site Mgr)</textarea>
+                            </div>
+                        </div>
+
+                        <!-- LINE ITEMS MATRIX TABLE -->
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full text-left text-xs" id="itemsTable">
+                                <thead>
+                                    <tr class="border-b-2 border-slate-200 text-slate-500 uppercase font-semibold">
+                                        <th class="py-2.5 px-1 no-print w-6"></th>
+                                        <th id="th-sku" class="py-2.5 px-2 w-20 hidden">SKU</th>
+                                        <th id="th-desc" class="py-2.5 px-2">Item Description</th>
+                                        <th id="th-custom" class="py-2.5 px-2 w-28 hidden"><input type="text" value="Phase / Date" class="font-semibold text-slate-500 uppercase bg-transparent w-full focus:outline-none"></th>
+                                        <th id="th-qty" class="py-2.5 px-2 text-right w-16">Qty</th>
+                                        <th id="th-rate" class="py-2.5 px-2 text-right w-24">Rate</th>
+                                        <th id="th-itemdiscount" class="py-2.5 px-2 text-right w-16 hidden">Disc %</th>
+                                        <th id="th-itemtax" class="py-2.5 px-2 text-right w-16 hidden">Tax</th>
+                                        <th class="py-2.5 px-2 text-right w-28">Amount</th>
+                                        <th class="py-2.5 px-1 no-print w-8"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lineItemsContainer" class="divide-y divide-slate-100">
+                                    <!-- Dynamic rows will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Add Row Button -->
+                        <div class="mb-8 no-print">
+                            <button onclick="addLineItem()" class="px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition flex items-center gap-1.5">
+                                <svg class="ic " aria-hidden="true"><use href="#i-plus"/></svg> Add Line Item
+                            </button>
+                        </div>
+
+                        <!-- SUMMARY & TOTALS SECTION -->
+                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-6 pt-4 border-t border-slate-200 mb-8">
+                            
+                            <!-- Left Note / Memo Space -->
+                            <div class="sm:col-span-6 space-y-4">
+                                <div id="payment-section">
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Payment Details:</h4>
+                                    <textarea id="paymentDetails" rows="4" placeholder="Bank Name, IBAN, SWIFT, PayPal, or Payment Link" class="text-xs text-slate-600 w-full bg-slate-50 p-2.5 rounded-xl border border-slate-100 focus:outline-none focus:bg-white resize-none">Bank: Chase Manhattan
+Account: 1234-5678-9012
+Routing / SWIFT: CHASEUS33
+PayPal / Zelle: billing@apexglobal.com</textarea>
+                                </div>
+                            </div>
+
+                            <!-- Financial Totals Block -->
+                            <div class="sm:col-span-6 space-y-2 text-xs">
+                                <div class="flex justify-between items-center py-1">
+                                    <span class="text-slate-500 font-medium">Subtotal</span>
+                                    <span class="font-bold text-slate-800" id="lblSubtotal">$0.00</span>
+                                </div>
+
+                                <!-- Global Discount -->
+                                <div class="flex justify-between items-center py-1">
+                                    <div class="flex items-center space-x-1">
+                                        <span class="text-slate-500 font-medium">Global Discount</span>
+                                        <input type="number" id="globalDiscountVal" value="0" min="0" oninput="calculateTotals()" class="w-12 p-0.5 text-right bg-slate-50 border rounded focus:outline-none no-print">
+                                        <select id="globalDiscountType" onchange="calculateTotals()" class="bg-slate-50 border rounded p-0.5 no-print">
+                                            <option value="%">%</option>
+                                            <option value="fixed">Fixed</option>
+                                        </select>
+                                    </div>
+                                    <span class="text-slate-700" id="lblDiscount">-$0.00</span>
+                                </div>
+
+                                <!-- Multi-tier Taxes -->
+                                <div class="flex justify-between items-center py-1">
+                                    <div class="flex items-center space-x-1">
+                                        <input type="text" id="tax1Name" value="VAT / Tax" class="w-20 text-slate-500 font-medium bg-transparent focus:outline-none border-b border-transparent hover:border-slate-300">
+                                        <input type="number" id="tax1Rate" value="10" min="0" step="0.1" oninput="calculateTotals()" class="w-12 p-0.5 text-right bg-slate-50 border rounded focus:outline-none no-print">%
+                                    </div>
+                                    <span class="text-slate-700" id="lblTax1">$0.00</span>
+                                </div>
+
+                                <div class="flex justify-between items-center py-1">
+                                    <div class="flex items-center space-x-1">
+                                        <input type="text" id="tax2Name" value="State Tax" class="w-20 text-slate-500 font-medium bg-transparent focus:outline-none border-b border-transparent hover:border-slate-300">
+                                        <input type="number" id="tax2Rate" value="0" min="0" step="0.1" oninput="calculateTotals()" class="w-12 p-0.5 text-right bg-slate-50 border rounded focus:outline-none no-print">%
+                                    </div>
+                                    <span class="text-slate-700" id="lblTax2">$0.00</span>
+                                </div>
+
+                                <!-- Shipping / Extra Fee -->
+                                <div class="flex justify-between items-center py-1">
+                                    <span class="text-slate-500 font-medium">Shipping / Freight</span>
+                                    <div class="flex items-center">
+                                        <span class="currency-symbol mr-1">$</span>
+                                        <input type="number" id="shippingFee" value="0" min="0" step="0.01" oninput="calculateTotals()" class="w-16 p-0.5 text-right bg-slate-50 border rounded focus:outline-none no-print">
+                                    </div>
+                                </div>
+
+                                <div class="border-t border-slate-200 my-2 pt-2 flex justify-between items-center">
+                                    <span class="font-bold text-sm text-slate-800">Total Invoice Amount</span>
+                                    <span class="font-black text-base dynamic-brand-text" id="lblTotal">$0.00</span>
+                                </div>
+
+                                <!-- Deposit / Amount Paid -->
+                                <div class="flex justify-between items-center py-1 text-slate-600">
+                                    <span class="font-medium">Amount Paid / Deposit</span>
+                                    <div class="flex items-center">
+                                        <span class="currency-symbol mr-1">$</span>
+                                        <input type="number" id="amountPaid" value="0" min="0" step="0.01" oninput="calculateTotals()" class="w-16 p-0.5 text-right bg-slate-50 border rounded focus:outline-none no-print">
+                                    </div>
+                                </div>
+
+                                <!-- Final Balance Due Highlight Box -->
+                                <div class="bg-slate-900 text-white p-3 rounded-xl flex justify-between items-center mt-3">
+                                    <span class="font-bold uppercase tracking-wide text-xs">Balance Due</span>
+                                    <span class="font-black text-lg text-emerald-400" id="lblBalance">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TERMS & NOTES SECTION -->
+                        <div id="notes-section" class="pt-4 border-t border-slate-100 mb-8">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Terms & Conditions / Notes:</h4>
+                            <textarea id="invoiceNotes" rows="2" placeholder="Thank you for your business..." class="text-xs text-slate-600 w-full bg-transparent focus:bg-slate-50 p-1 rounded focus:outline-none resize-none">Payment is due within the stipulated time frame. Late payments are subject to a 1.5% monthly service charge. Thank you for your business!</textarea>
+                        </div>
+
+                        <!-- DIGITAL SIGNATURE SECTION -->
+                        <div id="signature-section" class="grid grid-cols-2 gap-8 pt-6 border-t border-slate-100 hidden">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 mb-2">Authorized Issuer Signature:</p>
+                                <div class="border-b-2 border-slate-300 h-16 relative flex items-end">
+                                    <canvas id="sigCanvas" class="absolute inset-0 w-full h-full cursor-crosshair no-print"></canvas>
+                                    <img id="sigImage" class="max-h-14 hidden mb-1" alt="Signature">
+                                </div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <input type="text" placeholder="Signer Name / Title" value="Jane Doe, CFO" class="text-xs text-slate-600 font-medium focus:outline-none bg-transparent">
+                                    <button onclick="clearSignature()" class="text-[10px] text-rose-500 hover:underline no-print">Clear</button>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold text-slate-500 mb-2">Client Acceptance (Optional):</p>
+                                <div class="border-b-2 border-slate-300 h-16 flex items-end"></div>
+                                <input type="text" placeholder="Client Representative Name & Date" class="text-xs text-slate-600 font-medium mt-1 focus:outline-none bg-transparent w-full">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Note -->
+                    <div class="text-center text-[10px] text-slate-400 pt-8 border-t border-slate-100 mt-8">
+                        <input type="text" id="invFooter" placeholder="Add a footer note (optional)" aria-label="Footer note" class="hide-placeholder w-full text-center bg-transparent focus:outline-none placeholder-slate-300">
+                    </div>
+
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white text-xs px-4 py-2.5 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+        <svg class="ic text-emerald-400" aria-hidden="true"><use href="#i-circle-check"/></svg>
+        <span id="toastMsg">Invoice state saved</span>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+        // Global State & Configuration
+        let currencySymbol = '$';
+        let lineItemCount = 0;
+        let visibleCols = {
+            sku: false,
+            custom: false,
+            itemdiscount: false,
+            itemtax: false
+        };
+
+        // Preset Configurations
+        const PRESETS = {
+            standard: {
+                sku: false, custom: false, itemdiscount: false, itemtax: false,
+                rateLabel: 'Rate', qtyLabel: 'Qty'
+            },
+            services: {
+                sku: false, custom: true, itemdiscount: false, itemtax: false,
+                rateLabel: 'Hourly Rate', qtyLabel: 'Hours'
+            },
+            products: {
+                sku: true, custom: false, itemdiscount: true, itemtax: true,
+                rateLabel: 'Unit Price', qtyLabel: 'Qty'
+            },
+            custom: {
+                sku: true, custom: true, itemdiscount: true, itemtax: true,
+                rateLabel: 'Rate', qtyLabel: 'Qty'
+            }
+        };
+
+        // Init App
+        window.addEventListener('DOMContentLoaded', () => {
+            // Set default dates
+            const today = new Date();
+            const due = new Date();
+            due.setDate(today.getDate() + 30);
+
+            document.getElementById('issueDate').value = formatDate(today);
+            document.getElementById('dueDate').value = formatDate(due);
+
+            // Setup Signature Pad
+            initSignaturePad();
+
+            // Load saved or sample data
+            if (!localStorage.getItem('omni_invoice_data')) {
+                loadSampleData();
+            } else {
+                loadFromLocalStorage();
+            }
+
+            // Auto save trigger
+            document.addEventListener('input', debounce(saveToLocalStorage, 1000));
+        });
+
+        // Helper: Format Date for input[type="date"]
+        function formatDate(d) {
+            return d.toISOString().split('T')[0];
+        }
+
+        // Apply Preset Columns
+        function applyPreset(presetName) {
+            const config = PRESETS[presetName];
+            if (!config) return;
+
+            visibleCols.sku = config.sku;
+            visibleCols.custom = config.custom;
+            visibleCols.itemdiscount = config.itemdiscount;
+            visibleCols.itemtax = config.itemtax;
+
+            document.getElementById('col-sku').checked = config.sku;
+            document.getElementById('col-custom').checked = config.custom;
+            document.getElementById('col-itemdiscount').checked = config.itemdiscount;
+            document.getElementById('col-itemtax').checked = config.itemtax;
+
+            if (config.qtyLabel) document.getElementById('th-qty').innerText = config.qtyLabel;
+            if (config.rateLabel) document.getElementById('th-rate').innerText = config.rateLabel;
+
+            updateColumnVisibilities();
+            showToast(`Applied ${presetName.toUpperCase()} preset`);
+        }
+
+        // Toggle Single Column Visibility
+        function toggleColumn(colName) {
+            visibleCols[colName] = document.getElementById(`col-${colName}`).checked;
+            updateColumnVisibilities();
+        }
+
+        function updateColumnVisibilities() {
+            const keys = ['sku', 'custom', 'itemdiscount', 'itemtax'];
+            keys.forEach(key => {
+                const isVisible = visibleCols[key];
+                const th = document.getElementById(`th-${key}`);
+                if (th) th.classList.toggle('hidden', !isVisible);
+
+                // Update existing row cells
+                document.querySelectorAll(`.td-${key}`).forEach(td => {
+                    td.classList.toggle('hidden', !isVisible);
+                });
+            });
+            calculateTotals();
+        }
+
+        // Add Line Item Row
+        function addLineItem(data = {}) {
+            lineItemCount++;
+            const tbody = document.getElementById('lineItemsContainer');
+            const tr = document.createElement('tr');
+            tr.className = 'group hover:bg-slate-50/50 transition item-row';
+            tr.id = `row-${lineItemCount}`;
+            tr.draggable = true;
+
+            // Drag handles
+            tr.addEventListener('dragstart', handleDragStart);
+            tr.addEventListener('dragover', handleDragOver);
+            tr.addEventListener('drop', handleDrop);
+            tr.addEventListener('dragend', handleDragEnd);
+
+            tr.innerHTML = `
+                <td class="py-2 px-1 text-slate-300 hover:text-slate-500 cursor-grab no-print">
+                    <svg class="ic text-xs" aria-hidden="true"><use href="#i-grip-vertical"/></svg>
+                </td>
+                <td class="py-2 px-2 td-sku ${visibleCols.sku ? '' : 'hidden'}">
+                    <input type="text" value="${data.sku || ''}" placeholder="SKU-01" class="w-full bg-transparent border border-transparent focus:border-slate-300 focus:bg-white rounded p-1 text-slate-700">
+                </td>
+                <td class="py-2 px-2">
+                    <input type="text" value="${data.desc || ''}" placeholder="Item / Service Description" class="w-full font-medium bg-transparent border border-transparent focus:border-slate-300 focus:bg-white rounded p-1 text-slate-800">
+                </td>
+                <td class="py-2 px-2 td-custom ${visibleCols.custom ? '' : 'hidden'}">
+                    <input type="text" value="${data.custom || ''}" placeholder="Phase 1" class="w-full bg-transparent border border-transparent focus:border-slate-300 focus:bg-white rounded p-1 text-slate-600">
+                </td>
+                <td class="py-2 px-2">
+                    <input type="number" value="${data.qty ?? 1}" min="0" step="any" oninput="calculateTotals()" class="item-qty w-full text-right bg-transparent border border-transparent focus:border-slate-300 focus:bg-white rounded p-1 text-slate-800 font-semibold">
+                </td>
+                <td class="py-2 px-2">
+                    <input type="number" value="${data.rate ?? 0}" min="0" step="any" oninput="calculateTotals()" class="item-rate w-full text-right bg-transparent border border-transparent focus:border-slate-300 focus:bg-white rounded p-1 text-slate-800 font-semibold">
+                </td>
+                <td class="py-2 px-2 td-itemdiscount ${visibleCols.itemdiscount ? '' : 'hidden'}">
+                    <input type="number" value="${data.discount ?? 0}" min="0" max="100" oninput="calculateTotals()" class="item-discount w-full text-right bg-transparent border border-transparent focus:border-slate-300 focus:bg-white rounded p-1 text-slate-600">
+                </td>
+                <td class="py-2 px-2 td-itemtax ${visibleCols.itemtax ? '' : 'hidden'}">
+                    <input type="number" value="${data.tax ?? 0}" min="0" step="0.1" oninput="calculateTotals()" class="item-tax w-full text-right bg-transparent border border-transparent focus:border-slate-300 focus:bg-white rounded p-1 text-slate-600">
+                </td>
+                <td class="py-2 px-2 text-right font-bold text-slate-800 item-amount">
+                    ${currencySymbol}0.00
+                </td>
+                <td class="py-2 px-1 text-right no-print">
+                    <button onclick="removeLineItem('${tr.id}')" class="text-slate-300 hover:text-rose-500 p-1 transition">
+                        <svg class="ic text-xs" aria-hidden="true"><use href="#i-trash-can"/></svg>
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+            calculateTotals();
+        }
+
+        // Remove Row
+        function removeLineItem(id) {
+            const row = document.getElementById(id);
+            if (row) {
+                row.remove();
+                calculateTotals();
+            }
+        }
+
+        // Calculation Core Engine
+        function calculateTotals() {
+            let subtotal = 0;
+            const rows = document.querySelectorAll('#lineItemsContainer tr');
+
+            rows.forEach(row => {
+                const qty = parseFloat(row.querySelector('.item-qty')?.value) || 0;
+                const rate = parseFloat(row.querySelector('.item-rate')?.value) || 0;
+                const disc = parseFloat(row.querySelector('.item-discount')?.value) || 0;
+                const tax = parseFloat(row.querySelector('.item-tax')?.value) || 0;
+
+                let rowBase = qty * rate;
+                if (visibleCols.itemdiscount && disc > 0) {
+                    rowBase -= rowBase * (disc / 100);
+                }
+                if (visibleCols.itemtax && tax > 0) {
+                    rowBase += rowBase * (tax / 100);
+                }
+
+                subtotal += rowBase;
+                const amtCell = row.querySelector('.item-amount');
+                if (amtCell) amtCell.innerText = formatMoney(rowBase);
+            });
+
+            // Global Discount
+            const discountVal = parseFloat(document.getElementById('globalDiscountVal').value) || 0;
+            const discountType = document.getElementById('globalDiscountType').value;
+            let discountAmount = 0;
+
+            if (discountType === '%') {
+                discountAmount = subtotal * (discountVal / 100);
+            } else {
+                discountAmount = discountVal;
+            }
+
+            const afterDiscount = Math.max(0, subtotal - discountAmount);
+
+            // Multi-tier Taxes
+            const tax1Rate = parseFloat(document.getElementById('tax1Rate').value) || 0;
+            const tax2Rate = parseFloat(document.getElementById('tax2Rate').value) || 0;
+
+            const tax1Amount = afterDiscount * (tax1Rate / 100);
+            const tax2Amount = afterDiscount * (tax2Rate / 100);
+
+            // Shipping
+            const shipping = parseFloat(document.getElementById('shippingFee').value) || 0;
+
+            // Grand Total
+            const grandTotal = afterDiscount + tax1Amount + tax2Amount + shipping;
+
+            // Paid & Balance
+            const paid = parseFloat(document.getElementById('amountPaid').value) || 0;
+            const balance = grandTotal - paid;
+
+            // DOM Updates
+            document.getElementById('lblSubtotal').innerText = formatMoney(subtotal);
+            document.getElementById('lblDiscount').innerText = `-${formatMoney(discountAmount)}`;
+            document.getElementById('lblTax1').innerText = formatMoney(tax1Amount);
+            document.getElementById('lblTax2').innerText = formatMoney(tax2Amount);
+            document.getElementById('lblTotal').innerText = formatMoney(grandTotal);
+            document.getElementById('lblBalance').innerText = formatMoney(balance);
+        }
+
+        // Currency Formatting
+        function formatMoney(amount) {
+            return currencySymbol + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function changeCurrency(val) {
+            const customInput = document.getElementById('customCurrency');
+            if (val === 'custom') {
+                customInput.classList.remove('hidden');
+                currencySymbol = customInput.value || '$';
+            } else {
+                customInput.classList.add('hidden');
+                currencySymbol = val;
+            }
+            updateCurrencyUI();
+        }
+
+        function updateCustomCurrency(val) {
+            currencySymbol = val || '$';
+            updateCurrencyUI();
+        }
+
+        function updateCurrencyUI() {
+            document.querySelectorAll('.currency-symbol').forEach(el => el.innerText = currencySymbol);
+            calculateTotals();
+        }
+
+        // Theme Color Updates
+        function updateThemeColor(color) {
+            document.documentElement.style.setProperty('--brand-color', color);
+            document.getElementById('primaryColor').value = color;
+        }
+
+        // Section Toggles
+        function toggleSection(id, show) {
+            const sec = document.getElementById(id);
+            if (sec) sec.classList.toggle('hidden', !show);
+        }
+
+        // Logo Upload Handler
+        function handleLogoUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const img = document.getElementById('logoPreview');
+                    img.src = evt.target.result;
+                    img.classList.remove('hidden');
+                    document.getElementById('logoContainer').classList.add('hidden');
+                    document.getElementById('removeLogoBtn').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeLogo() {
+            document.getElementById('logoPreview').src = '';
+            document.getElementById('logoPreview').classList.add('hidden');
+            document.getElementById('logoContainer').classList.remove('hidden');
+            document.getElementById('removeLogoBtn').classList.add('hidden');
+        }
+
+        // Drag and Drop Row Reordering
+        let dragSrcEl = null;
+
+        function handleDragStart(e) {
+            dragSrcEl = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) e.preventDefault();
+            return false;
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) e.stopPropagation();
+            if (dragSrcEl !== this) {
+                const container = document.getElementById('lineItemsContainer');
+                const children = Array.from(container.children);
+                const srcIdx = children.indexOf(dragSrcEl);
+                const targetIdx = children.indexOf(this);
+
+                if (srcIdx < targetIdx) {
+                    container.insertBefore(dragSrcEl, this.nextSibling);
+                } else {
+                    container.insertBefore(dragSrcEl, this);
+                }
+            }
+            return false;
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+        }
+
+        // Digital Signature Canvas Logic
+        function initSignaturePad() {
+            const canvas = document.getElementById('sigCanvas');
+            const ctx = canvas.getContext('2d');
+            let drawing = false;
+
+            function resizeCanvas() {
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
+            }
+            resizeCanvas();
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                return {
+                    x: (e.clientX || e.touches[0].clientX) - rect.left,
+                    y: (e.clientY || e.touches[0].clientY) - rect.top
+                };
+            }
+
+            function startDraw(e) {
+                drawing = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            function moveDraw(e) {
+                if (!drawing) return;
+                const pos = getPos(e);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            }
+
+            function endDraw() {
+                drawing = false;
+            }
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', moveDraw);
+            canvas.addEventListener('mouseup', endDraw);
+
+            canvas.addEventListener('touchstart', startDraw);
+            canvas.addEventListener('touchmove', moveDraw);
+            canvas.addEventListener('touchend', endDraw);
+        }
+
+        function clearSignature() {
+            const canvas = document.getElementById('sigCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Local Storage Auto Save/Load
+        function saveToLocalStorage() {
+            const data = serializeInvoice();
+            localStorage.setItem('omni_invoice_data', JSON.stringify(data));
+            showToast('Auto-saved to browser');
+        }
+
+        function loadFromLocalStorage() {
+            const raw = localStorage.getItem('omni_invoice_data');
+            if (raw) {
+                try {
+                    deserializeInvoice(JSON.parse(raw));
+                } catch(e) {
+                    console.error("Failed loading saved invoice", e);
+                }
+            }
+        }
+
+        // Serialize State
+        function serializeInvoice() {
+            const items = [];
+            document.querySelectorAll('#lineItemsContainer tr').forEach(row => {
+                items.push({
+                    sku: row.querySelector('.td-sku input')?.value || '',
+                    desc: row.children[2]?.querySelector('input')?.value || '',
+                    custom: row.querySelector('.td-custom input')?.value || '',
+                    qty: parseFloat(row.querySelector('.item-qty')?.value) || 0,
+                    rate: parseFloat(row.querySelector('.item-rate')?.value) || 0,
+                    discount: parseFloat(row.querySelector('.item-discount')?.value) || 0,
+                    tax: parseFloat(row.querySelector('.item-tax')?.value) || 0
+                });
+            });
+
+            return {
+                themeColor: document.getElementById('primaryColor').value,
+                currency: currencySymbol,
+                compName: document.getElementById('compName').value,
+                compSlogan: document.getElementById('compSlogan').value,
+                compAddress: document.getElementById('compAddress').value,
+                invNumber: document.getElementById('invNumber').value,
+                poNumber: document.getElementById('poNumber').value,
+                issueDate: document.getElementById('issueDate').value,
+                dueDate: document.getElementById('dueDate').value,
+                paymentTerms: document.getElementById('paymentTerms').value,
+                clientName: document.getElementById('clientName').value,
+                clientAddress: document.getElementById('clientAddress').value,
+                shipName: document.getElementById('shipName').value,
+                shipAddress: document.getElementById('shipAddress').value,
+                paymentDetails: document.getElementById('paymentDetails').value,
+                invoiceNotes: document.getElementById('invoiceNotes').value,
+                globalDiscountVal: document.getElementById('globalDiscountVal').value,
+                globalDiscountType: document.getElementById('globalDiscountType').value,
+                tax1Name: document.getElementById('tax1Name').value,
+                tax1Rate: document.getElementById('tax1Rate').value,
+                tax2Name: document.getElementById('tax2Name').value,
+                tax2Rate: document.getElementById('tax2Rate').value,
+                shippingFee: document.getElementById('shippingFee').value,
+                amountPaid: document.getElementById('amountPaid').value,
+                visibleCols,
+                items
+            };
+        }
+
+        // Deserialize State
+        function deserializeInvoice(data) {
+            if (data.themeColor) updateThemeColor(data.themeColor);
+            if (data.currency) {
+                currencySymbol = data.currency;
+                document.getElementById('currencySelect').value = ['$', '€', '£', '₹', '¥', 'A$', 'C$'].includes(data.currency) ? data.currency : 'custom';
+            }
+
+            document.getElementById('compName').value = data.compName || '';
+            document.getElementById('compSlogan').value = data.compSlogan || '';
+            document.getElementById('compAddress').value = data.compAddress || '';
+            document.getElementById('invNumber').value = data.invNumber || '';
+            document.getElementById('poNumber').value = data.poNumber || '';
+            document.getElementById('issueDate').value = data.issueDate || '';
+            document.getElementById('dueDate').value = data.dueDate || '';
+            document.getElementById('paymentTerms').value = data.paymentTerms || '';
+            document.getElementById('clientName').value = data.clientName || '';
+            document.getElementById('clientAddress').value = data.clientAddress || '';
+            document.getElementById('shipName').value = data.shipName || '';
+            document.getElementById('shipAddress').value = data.shipAddress || '';
+            document.getElementById('paymentDetails').value = data.paymentDetails || '';
+            document.getElementById('invoiceNotes').value = data.invoiceNotes || '';
+            document.getElementById('globalDiscountVal').value = data.globalDiscountVal || 0;
+            document.getElementById('globalDiscountType').value = data.globalDiscountType || '%';
+            document.getElementById('tax1Name').value = data.tax1Name || 'Tax';
+            document.getElementById('tax1Rate').value = data.tax1Rate || 0;
+            document.getElementById('tax2Name').value = data.tax2Name || 'State Tax';
+            document.getElementById('tax2Rate').value = data.tax2Rate || 0;
+            document.getElementById('shippingFee').value = data.shippingFee || 0;
+            document.getElementById('amountPaid').value = data.amountPaid || 0;
+
+            if (data.visibleCols) {
+                visibleCols = data.visibleCols;
+                document.getElementById('col-sku').checked = visibleCols.sku;
+                document.getElementById('col-custom').checked = visibleCols.custom;
+                document.getElementById('col-itemdiscount').checked = visibleCols.itemdiscount;
+                document.getElementById('col-itemtax').checked = visibleCols.itemtax;
+                updateColumnVisibilities();
+            }
+
+            // Clear & populate items
+            document.getElementById('lineItemsContainer').innerHTML = '';
+            if (data.items && data.items.length) {
+                data.items.forEach(item => addLineItem(item));
+            } else {
+                addLineItem();
+            }
+        }
+
+        // Load Sample Data Button
+        function loadSampleData() {
+            applyPreset('standard');
+            const sample = {
+                themeColor: '#e24d1a',
+                currency: '$',
+                compName: 'Apex Global Solutions Inc.',
+                compSlogan: 'Enterprise Software & Cloud Architecture',
+                compAddress: '100 Innovation Way, Suite 400\nNew York, NY 10001\nTax ID: US-987654321',
+                invNumber: 'INV-2026-089',
+                poNumber: 'PO-44102',
+                issueDate: formatDate(new Date()),
+                dueDate: formatDate(new Date(Date.now() + 30*24*60*60*1000)),
+                paymentTerms: 'Net 30',
+                clientName: 'Starlight Retail Networks LLC',
+                clientAddress: '550 Market Street, Fl 12\nSan Francisco, CA 94105\nAttn: Accounts Payable',
+                paymentDetails: 'Bank: Chase Manhattan\nAccount: 9876-5432-10\nSWIFT: CHASEUS33\nPaypal: billing@apexglobal.com',
+                invoiceNotes: 'Thank you for choosing Apex Global. Please send payment confirmations to billing@apexglobal.com.',
+                globalDiscountVal: 5,
+                globalDiscountType: '%',
+                tax1Name: 'State Tax',
+                tax1Rate: 8.875,
+                tax2Name: 'Processing Fee',
+                tax2Rate: 0,
+                shippingFee: 150,
+                amountPaid: 1000,
+                visibleCols: { sku: true, custom: false, itemdiscount: true, itemtax: false },
+                items: [
+                    { sku: 'SRV-CLOUD', desc: 'Enterprise Cloud Migration Strategy & Implementation', qty: 40, rate: 150, discount: 0 },
+                    { sku: 'HDW-SRV', desc: 'High-Performance Dedicated Server Hardware Rack', qty: 2, rate: 2450, discount: 10 },
+                    { sku: 'LIC-ANNUAL', desc: 'Annual Multi-User Security & Analytics License', qty: 1, rate: 1200, discount: 0 }
+                ]
+            };
+            deserializeInvoice(sample);
+            showToast('Sample Invoice Loaded');
+        }
+
+        function clearInvoice() {
+            if (confirm('Are you sure you want to clear the invoice?')) {
+                document.getElementById('lineItemsContainer').innerHTML = '';
+                addLineItem();
+                showToast('Invoice cleared');
+            }
+        }
+
+        // Export JSON
+        function exportJSON() {
+            const data = serializeInvoice();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Invoice_${data.invNumber || 'Draft'}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Invoice exported as JSON');
+        }
+
+        // Import JSON
+        function importJSON(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const parsed = JSON.parse(evt.target.result);
+                    deserializeInvoice(parsed);
+                    showToast('Invoice loaded from file');
+                } catch(err) {
+                    alert('Invalid JSON File Format');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Toast Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        // Utility: Debounce
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+    </script>
+    <script>
+        document.getElementById('themeBtn').addEventListener('click', function () {
+            var r = document.documentElement, t = r.dataset.theme === 'light' ? 'dark' : 'light';
+            r.dataset.theme = t;
+            try { localStorage.setItem('ss-theme', t); } catch (e) {}
+        });
+        document.querySelectorAll('.preset-btn').forEach(function (b) {
+            b.addEventListener('click', function () {
+                document.querySelectorAll('.preset-btn').forEach(function (x) { x.classList.remove('active'); });
+                b.classList.add('active');
+            });
+        });
+    </script>
+    <script>
+    (function(){
+        var $=function(i){return document.getElementById(i)},sheet=$('invoiceSheet'),KEY='omni_format';
+        var D={layout:'classic',table:'lines',size:'A4',orient:'portrait',margin:12,font:'Manrope, system-ui, sans-serif',fs:100,dens:100,rad:12,logo:80,swap:false,hide:{},labels:null,footer:''};
+        var F=JSON.parse(JSON.stringify(D));
+        try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv)Object.assign(F,sv)}catch(e){}
+        var SZ={A4:[210,297],Letter:[215.9,279.4],A5:[148,210],Legal:[215.9,355.6]};
+        var pr=document.createElement('style');document.head.appendChild(pr);
+        var row=function(id){var e=$(id);return e&&(e.closest('.py-1')||e.closest('.sm\\:justify-end'))};
+        var FIELDS=[['po','P.O. number',function(){return row('poNumber')}],['issue','Issue date',function(){return row('issueDate')}],['due','Due date',function(){return row('dueDate')}],['terms','Payment terms',function(){return row('paymentTerms')}],['disc','Discount',function(){return row('globalDiscountVal')}],['tax1','First tax',function(){return row('tax1Rate')}],['tax2','Second tax',function(){return row('tax2Rate')}],['ship','Shipping',function(){return row('shippingFee')}],['paid','Amount paid',function(){return row('amountPaid')}],['bal','Balance due box',function(){var e=$('lblBalance');return e&&e.closest('.bg-slate-900')}]];
+        FIELDS.forEach(function(f){var l=document.createElement('label');l.className='chk';l.innerHTML='<input type="checkbox" data-h="'+f[0]+'"> '+f[1];$('hideBox').appendChild(l)});
+        var LBL=Array.prototype.filter.call(sheet.querySelectorAll('h3,h4,span.font-medium,th[id]'),function(e){return !e.children.length&&e.textContent.trim()&&!e.querySelector('input')});
+        if(F.labels&&F.labels.length===LBL.length)LBL.forEach(function(e,i){e.textContent=F.labels[i]});
+        function save(){try{localStorage.setItem(KEY,JSON.stringify(F))}catch(e){}}
+        function apply(){
+            var z=SZ[F.size]||SZ.A4,L=F.orient==='landscape',st=sheet.style;
+            st.setProperty('--sw',(L?z[1]:z[0])+'mm');st.setProperty('--sh',(L?z[0]:z[1])+'mm');st.setProperty('--pad',F.margin+'mm');
+            st.setProperty('--ff',F.font);st.setProperty('--fs',F.fs/100);st.setProperty('--dens',F.dens/100);st.setProperty('--rad',F.rad+'px');st.setProperty('--logoh',F.logo+'px');
+            sheet.dataset.layout=F.layout;sheet.dataset.table=F.table;$('hdrGrid').classList.toggle('hdr-swap',!!F.swap);
+            pr.textContent='@page{size:'+F.size+' '+F.orient+';margin:'+F.margin+'mm}';
+            FIELDS.forEach(function(f){var e=f[2]();if(e)e.classList.toggle('fmt-hide',!!F.hide[f[0]])});
+            document.querySelectorAll('[data-f]').forEach(function(c){var k=c.dataset.f;if(c.type==='checkbox')c.checked=!!F[k];else c.value=F[k]});
+            document.querySelectorAll('[data-h]').forEach(function(c){c.checked=!F.hide[c.dataset.h]});
+            document.querySelectorAll('[data-lay]').forEach(function(b){b.classList.toggle('on',b.dataset.lay===F.layout)});
+            var u={margin:' mm',fs:'%',dens:'%',rad:' px',logo:' px'};for(var k in u){var v=$('v-'+k);if(v)v.textContent=F[k]+u[k]}
+            var fi=$('invFooter');if(document.activeElement!==fi)fi.value=F.footer||'';fi.parentElement.classList.toggle('footer-empty',!(F.footer||'').trim());
+            save();
+        }
+        $('invFooter').addEventListener('input',function(){F.footer=this.value;apply()});
+        document.querySelectorAll('[data-f]').forEach(function(c){c.addEventListener('input',function(){var k=c.dataset.f;F[k]=c.type==='checkbox'?c.checked:(c.type==='range'?+c.value:c.value);apply()})});
+        document.querySelectorAll('[data-h]').forEach(function(c){c.addEventListener('change',function(){F.hide[c.dataset.h]=!c.checked;apply()})});
+        document.querySelectorAll('[data-lay]').forEach(function(b){b.addEventListener('click',function(){F.layout=b.dataset.lay;apply()})});
+        $('editLbl').addEventListener('change',function(){var on=this.checked;LBL.forEach(function(e){e.contentEditable=on;e.classList.toggle('lbl-edit',on)})});
+        LBL.forEach(function(e){e.addEventListener('input',function(){F.labels=LBL.map(function(x){return x.textContent});save()})});
+        $('fmtSave').addEventListener('click',function(){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({format:F},null,2)],{type:'application/json'}));a.download='invoice-format.json';a.click()});
+        $('fmtLoad').addEventListener('change',function(ev){var f=ev.target.files[0];if(!f)return;f.text().then(function(t){try{var o=JSON.parse(t).format;if(!o)throw 0;F=Object.assign(JSON.parse(JSON.stringify(D)),o);save();location.reload()}catch(e){alert('That file is not a saved invoice format.')}})});
+        $('fmtReset').addEventListener('click',function(){var had=!!F.labels;F=JSON.parse(JSON.stringify(D));save();if(had)location.reload();else apply()});
+        apply();
+    })();
+    </script>
+</body>
+</html>
