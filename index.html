@@ -245,13 +245,43 @@ details.adv summary{cursor:pointer;font-weight:700;margin-bottom:8px}
 #tFrame{flex:1;border:0;width:100%;background:#fff}
 #tvLoad{position:absolute;top:70px;left:0;right:0;pointer-events:none}
 #empty{justify-content:flex-start}#empty>:first-child{margin-top:auto}#empty>:last-child{margin-bottom:auto}
-.seo{width:min(760px,100%);margin-top:44px;padding:0 6px 36px;color:var(--mute);line-height:1.65;font-size:14px}
-.seo h1{font-size:26px;line-height:1.2;letter-spacing:-.02em;color:var(--text);margin:0 0 10px}
-.seo h2{font-size:16px;color:var(--text);margin:26px 0 8px}
-.seo p{margin:0 0 10px}.seo ul,.seo ol{margin:0 0 10px;padding-left:20px}.seo li{margin:3px 0}
-.seo a{color:var(--acc);text-decoration:none}.seo a:hover{text-decoration:underline}
-.seo details{border-top:1px solid var(--line);padding:10px 0}.seo summary{cursor:pointer;font-weight:700;color:var(--text)}
-.seo details p{margin:8px 0 0}
+.seo{width:min(860px,100%);margin-top:44px;padding:0 10px 48px;color:var(--mute);line-height:1.65;font-size:14px;text-align:left}
+.seo .hero{text-align:center;padding:34px 20px 30px;border-radius:22px;border:1px solid var(--line);background:radial-gradient(120% 140% at 50% -20%,var(--accbg),transparent 60%),var(--panel);position:relative;overflow:hidden}
+.seo .badge{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:99px;background:var(--accbg);color:var(--acc);font-weight:700;font-size:12px;margin-bottom:14px}
+.seo .badge:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(62,207,142,.18)}
+.seo h1{font-size:clamp(28px,5vw,42px);line-height:1.1;letter-spacing:-.03em;color:var(--text);margin:0 0 12px;font-weight:800}
+.seo h1 span{background:linear-gradient(90deg,var(--acc),#ffb03d);-webkit-background-clip:text;background-clip:text;color:transparent}
+.seo .lead{max-width:600px;margin:0 auto 18px;font-size:15px}
+.seo .trust{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.seo .trust b{padding:6px 12px;border-radius:99px;background:var(--raise);border:1px solid var(--line);color:var(--text);font-size:12px;font-weight:700}
+.seo h2{font-size:21px;letter-spacing:-.02em;color:var(--text);margin:42px 0 16px;text-align:center;font-weight:800}
+.seo .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.seo .card{padding:16px;border-radius:16px;background:var(--panel);border:1px solid var(--line);transition:transform .2s,border-color .2s,box-shadow .2s}
+.seo .card:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 10px 26px -14px var(--acc)}
+.seo .card .ic{width:40px;height:40px;border-radius:12px;background:var(--accbg);display:grid;place-items:center;font-size:20px;margin-bottom:10px}
+.seo .card strong{display:block;color:var(--text);font-size:14.5px;margin-bottom:3px}
+.seo .card span{font-size:13px;line-height:1.5}
+.seo .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;counter-reset:s}
+.seo .step{position:relative;padding:20px 16px 16px;border-radius:16px;background:var(--panel);border:1px solid var(--line);counter-increment:s}
+.seo .step:before{content:counter(s);position:absolute;top:-14px;left:16px;width:30px;height:30px;border-radius:10px;background:var(--acc);color:#1a0b05;font-weight:800;display:grid;place-items:center;box-shadow:0 6px 14px -4px var(--acc)}
+.seo .step strong{display:block;color:var(--text);margin-bottom:4px;font-size:15px}
+.seo .step em{font-style:normal;color:var(--acc);font-weight:700}
+.seo .support{display:flex;align-items:center;gap:14px;margin-top:34px;padding:16px 18px;border-radius:16px;background:linear-gradient(100deg,rgba(255,221,0,.16),rgba(255,106,61,.10));border:1px dashed #ffdd0099;color:var(--text)}
+.seo .support .cup{font-size:30px;line-height:1}
+.seo .support b{display:block;font-size:15px}.seo .support small{color:var(--mute);font-size:12.5px}
+.seo .faq{display:grid;gap:10px;max-width:720px;margin:0 auto}
+.seo details{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:0 16px;transition:border-color .2s}
+.seo details[open]{border-color:var(--acc)}
+.seo summary{cursor:pointer;font-weight:700;color:var(--text);padding:14px 0;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.seo summary::-webkit-details-marker{display:none}
+.seo summary:after{content:"+";font-size:20px;color:var(--acc);transition:transform .2s;line-height:1}
+.seo details[open] summary:after{transform:rotate(45deg)}
+.seo details p{margin:0 0 14px}
+.seo #seoTools{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;font-size:0}
+.seo #seoTools a{font-size:13px;font-weight:700;color:var(--text);padding:9px 16px;border-radius:99px;background:var(--panel);border:1px solid var(--line);text-decoration:none;transition:all .2s}
+.seo #seoTools a:hover{background:var(--acc);border-color:var(--acc);color:#1a0b05;transform:translateY(-2px);text-decoration:none}
+.seo a{color:var(--acc)}
+@media(prefers-reduced-motion:reduce){.seo *{transition:none!important}}
 .bmcb{width:56px;margin-top:10px;padding:8px 0 6px;border-radius:10px;background:#FFDD00;color:#000;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10.5px;font-weight:800;text-decoration:none;box-shadow:0 0 0 1px #0003}
 .bmcb span{font-size:17px;line-height:1}
 .bmcb:hover{filter:brightness(1.07)}
@@ -332,30 +362,23 @@ details.adv summary{cursor:pointer;font-weight:700;margin-bottom:8px}
 
       <!-- ===== SEO content (paste block: inside #empty, after the ad banner) ===== -->
       <section class="seo" id="about">
-        <h1>Free Online PDF Editor</h1>
-        <p>editpdf.ink lets you edit, annotate, redact, sign, merge and split PDF files right in your browser. There is nothing to install and no account to create, and your files stay on your device.</p>
-        <h2>If you want to support this project CLICK the COFFEE ICON</h1>
-        <h2>What you can do</h2>
-        <ul>
-          <li><strong>Edit PDF text</strong> with matching font style, color and background</li>
-          <li><strong>Highlight, underline and strike out</strong> important passages</li>
-          <li><strong>Redact or blur</strong> private details so they cannot be recovered</li>
-          <li><strong>Add text, shapes, images, stamps and signatures</strong></li>
-          <li><strong>Merge PDFs</strong> into one file, or <strong>split a PDF</strong> by page or range</li>
-          <li><strong>Search</strong> a document with advanced options, in light or dark mode</li>
-        </ul>
-        <h2>How to edit a PDF online</h2>
-        <ol>
-          <li>Click <em>Choose PDF</em> or drag your file into the window.</li>
-          <li>Pick a tool, such as Edit text, Highlight, Redact, Draw or Sign, and make your changes.</li>
-          <li>Click <em>Save PDF</em> to download the edited file.</li>
-        </ol>
+        <div class="hero">
+          <span class="badge">100% free · No sign-up · Private</span>
+          <h1>Free Online <span>PDF Editor</span></h1>
+          <p class="lead">editpdf.ink lets you edit, annotate, redact, sign, merge and split PDF files right in your browser. Nothing to install, no account to create, and your files never leave your device.</p>
+          <div class="trust"><b>🔒 Files stay on your device</b><b>⚡ Works instantly</b><b>📱 Phone &amp; tablet ready</b></div>
+        </div>
+        <h2>Everything you need to work with PDFs</h2>
+        <div class="grid"><div class="card"><div class="ic">✏️</div><strong>Edit PDF text</strong><span>Change existing text with matching font style, color and background.</span></div><div class="card"><div class="ic">🖍️</div><strong>Highlight, underline &amp; strike out</strong><span>Mark up the passages that matter, in one click.</span></div><div class="card"><div class="ic">🛡️</div><strong>Redact or blur</strong><span>Hide private details so they can never be recovered.</span></div><div class="card"><div class="ic">🧩</div><strong>Text, shapes, images &amp; signatures</strong><span>Add stamps, drawings and your signature anywhere.</span></div><div class="card"><div class="ic">📚</div><strong>Merge &amp; split</strong><span>Combine PDFs into one, or split by page or range.</span></div><div class="card"><div class="ic">🔍</div><strong>Search &amp; dark mode</strong><span>Advanced document search, in light or dark mode.</span></div></div>
+        <h2>Edit a PDF in 3 easy steps</h2>
+        <div class="steps">
+          <div class="step"><strong>Open your PDF</strong>Click <em>Choose PDF</em> or drag your file into the window.</div>
+          <div class="step"><strong>Make your changes</strong>Pick a tool, such as <em>Edit text</em>, <em>Highlight</em>, <em>Redact</em>, <em>Draw</em> or <em>Sign</em>.</div>
+          <div class="step"><strong>Download it</strong>Click <em>Save PDF</em> to download the edited file.</div>
+        </div>
+        <div class="support"><span class="cup">☕</span><div><b>Enjoying editpdf.ink?</b><small>Help keep it free. Click the yellow COFFEE button on the left to support this project.</small></div></div>
         <h2>Frequently asked questions</h2>
-        <details><summary>Is this PDF editor free?</summary><p>Yes. You can open, edit and save PDFs without creating an account.</p></details>
-        <details><summary>Are my PDF files uploaded to a server?</summary><p>No. Editing, merging and splitting happen inside your browser, so your files stay on your device.</p></details>
-        <details><summary>Can I edit the existing text in a PDF?</summary><p>Yes. Choose the Edit text tool and click a line of text. The editor matches the original font style, color and background where it can, though some fonts may differ slightly.</p></details>
-        <details><summary>Can I merge or split PDF files?</summary><p>Yes. Use Organize to combine several PDFs into one, or to extract pages, split by range, or split into single pages.</p></details>
-        <details><summary>Does it work on a phone or tablet?</summary><p>Yes. The editor adapts to mobile screens and supports pinch to zoom.</p></details>
+        <div class="faq"><details><summary>Is this PDF editor free?</summary><p>Yes. You can open, edit and save PDFs without creating an account.</p></details><details><summary>Are my PDF files uploaded to a server?</summary><p>No. Editing, merging and splitting happen inside your browser, so your files stay on your device.</p></details><details><summary>Can I edit the existing text in a PDF?</summary><p>Yes. Choose the Edit text tool and click a line of text. The editor matches the original font style, color and background where it can, though some fonts may differ slightly.</p></details><details><summary>Can I merge or split PDF files?</summary><p>Yes. Use Organize to combine several PDFs into one, or to extract pages, split by range, or split into single pages.</p></details><details><summary>Does it work on a phone or tablet?</summary><p>Yes. The editor adapts to mobile screens and supports pinch to zoom.</p></details></div>
         <h2>More free tools</h2>
         <nav id="seoTools" aria-label="More free tools"><a href="exif-remover.html">EXIF Remover</a> · <a href="imate-resizer.html">Image Resizer</a> · <a href="ocr.html">OCR</a> · <a href="pdf-watermark.html">PDF Watermark</a> · <a href="qr-generator-decoder.html">QR Generator &amp; Decoder</a></nav>
       </section>
