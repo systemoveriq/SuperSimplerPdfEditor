@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced PDF Metadata & EXIF Studio</title>
+    <!-- Tailwind CSS for clean editpdf.ink style UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- pdf-lib to allow rewriting and downloading modified PDFs -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script>
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 py-4 px-6 shadow-sm">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="bg-indigo-600 text-white p-2 rounded-lg font-bold text-lg">📄</span>
+                <h1 class="text-xl font-bold tracking-tight text-slate-900">PDFMeta <span class="text-indigo-600">Studio</span></h1>
+            </div>
+            <p class="text-sm text-slate-500">EXIF Sync, Editable Hashes, Lock Controls & Dual Editing</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto w-full p-6 flex-grow">
+        
+        <!-- Upload Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Original PDF Dropzone -->
+            <div id="dropZoneOriginal" class="border-2 border-dashed border-slate-300 rounded-2xl p-6 bg-white text-center hover:border-indigo-500 transition cursor-pointer relative" onclick="document.getElementById('originalPdf').click()">
+                <input type="file" id="originalPdf" accept="application/pdf" class="hidden" onchange="handleFileSelect('original', this.files[0])">
+                <div class="text-indigo-600 text-3xl mb-2">📥</div>
+                <h3 class="font-semibold text-slate-700">Original PDF (Reference)</h3>
+                <p id="originalName" class="text-sm text-slate-400 mt-1">Click or drop reference file</p>
+            </div>
+
+            <!-- Modified PDF Dropzone -->
+            <div id="dropZoneModified" class="border-2 border-dashed border-slate-300 rounded-2xl p-6 bg-white text-center hover:border-indigo-500 transition cursor-pointer relative" onclick="document.getElementById('modifiedPdf').click()">
+                <input type="file" id="modifiedPdf" accept="application/pdf" class="hidden" onchange="handleFileSelect('modified', this.files[0])">
+                <div class="text-indigo-600 text-3xl mb-2">📤</div>
+                <h3 class="font-semibold text-slate-700">Modified PDF (Target)</h3>
+                <p id="modifiedName" class="text-sm text-slate-400 mt-1">Click or drop target file</p>
+            </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="text-center mb-8">
+            <button onclick="compareMetadata()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-8 py-3 rounded-xl shadow-lg transition transform active:scale-95">
+                Analyze, Lock/Unlock & Sync Metadata
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-100 flex-wrap gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800">Metadata & Hash Comparison Matrix</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">🔒 Click locks to edit hashes/metadata. Use 🔄 buttons to sync values across columns.</p>
+                </div>
+                <button onclick="syncAllFields()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-medium px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5">
+                    <span>🔄</span> Sync All Original -> Modified
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-100">
+                            <th class="py-3 px-4">Field / Parameter</th>
+                            <th class="py-3 px-4">Original PDF (Editable + Lock)</th>
+                            <th class="py-3 px-4 text-center">Sync</th>
+                            <th class="py-3 px-4">Modified PDF (Editable + Lock)</th>
+                            <th class="py-3 px-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonTableBody" class="text-sm divide-y divide-slate-100">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 bg-indigo-50 border border-indigo-100 rounded-xl p-4">
+                <div>
+                    <h4 class="font-semibold text-indigo-900 text-sm">🛠️ Ready to export target PDF?</h4>
+                    <p class="text-xs text-indigo-700">Applies your updated modified fields directly back into the target PDF document structure.</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="savePdf('original')" class="bg-slate-700 hover:bg-slate-800 text-white font-medium px-4 py-2.5 rounded-xl shadow transition text-xs">
+                        Download Original (Edited)
+                    </button>
+                    <button onclick="savePdf('modified')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-5 py-2.5 rounded-xl shadow transition text-xs">
+                        Download Modified PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-xs text-slate-400 border-t border-slate-200">
+        &copy; 2026 PDFMeta Studio. Professional browser-based metadata manager.
+    </footer>
+
+    <!-- Script Logic -->
+    <script>
+        let originalFileBuffer = null;
+        let modifiedFileBuffer = null;
+
+        // Setup Drag & Drop Handlers
+        ['original', 'modified'].forEach(type => {
+            const zone = document.getElementById(type === 'original' ? 'dropZoneOriginal' : 'dropZoneModified');
+            zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('border-indigo-600', 'bg-indigo-50/50'); });
+            zone.addEventListener('dragleave', () => { zone.classList.remove('border-indigo-600', 'bg-indigo-50/50'); });
+            zone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                zone.classList.remove('border-indigo-600', 'bg-indigo-50/50');
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    document.getElementById(type + 'Pdf').files = e.dataTransfer.files;
+                    handleFileSelect(type, file);
+                }
+            });
+        });
+
+        async function handleFileSelect(type, file) {
+            if (!file) return;
+            const nameLabel = document.getElementById(type + 'Name');
+            nameLabel.textContent = file.name;
+            nameLabel.classList.add('text-indigo-600', 'font-medium');
+
+            const buffer = await file.arrayBuffer();
+            if (type === 'original') originalFileBuffer = buffer;
+            if (type === 'modified') modifiedFileBuffer = buffer;
+        }
+
+        async function computeFileHash(arrayBuffer) {
+            const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function extractMetadata(arrayBuffer) {
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            const pdfDoc = await loadingTask.promise;
+            const metaObj = await pdfDoc.getMetadata();
+            const info = metaObj.info || {};
+            const sha256 = await computeFileHash(arrayBuffer);
+
+            return {
+                SHA256: sha256,
+                Title: info.Title || '',
+                Author: info.Author || '',
+                Subject: info.Subject || '',
+                Keywords: info.Keywords || '',
+                Creator: info.Creator || '',
+                Producer: info.Producer || '',
+                CreationDate: info.CreationDate || new Date().toISOString(),
+                ModDate: info.ModDate || new Date().toISOString()
+            };
+        }
+
+        async function compareMetadata() {
+            if (!originalFileBuffer || !modifiedFileBuffer) {
+                alert('Please upload both Original and Modified PDF files first.');
+                return;
+            }
+
+            try {
+                const origMeta = await extractMetadata(originalFileBuffer);
+                const modMeta = await extractMetadata(modifiedFileBuffer);
+
+                const tbody = document.getElementById('comparisonTableBody');
+                tbody.innerHTML = '';
+
+                const keys = ['SHA256', 'Title', 'Author', 'Subject', 'Keywords', 'Creator', 'Producer', 'CreationDate', 'ModDate'];
+
+                keys.forEach(key => {
+                    const origVal = origMeta[key] || '';
+                    const modVal = modMeta[key] || '';
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="py-3 px-4 font-medium text-slate-700 text-xs">${key}</td>
+                        
+                        <!-- Original Field (Locked by default) -->
+                        <td class="py-3 px-4">
+                            <div class="flex items-center space-x-1">
+                                <input type="text" id="orig_${key}" value="${escapeHtml(origVal)}" readonly
+                                    class="w-full bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 font-mono focus:bg-white focus:border-indigo-500 focus:outline-none transition">
+                                <button onclick="toggleLock('orig_${key}', this)" title="Unlock to edit" class="p-1.5 text-slate-400 hover:text-indigo-600 transition">
+                                    🔒
+                                </button>
+                            </div>
+                        </td>
+
+                        <!-- Sync Button -->
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="syncField('${key}')" title="Sync Original to Modified" class="p-1.5 bg-slate-100 hover:bg-indigo-50 text-slate-500 hover:text-indigo-600 rounded-lg transition">
+                                🔄
+                            </button>
+                        </td>
+
+                        <!-- Modified Field (Locked by default) -->
+                        <td class="py-3 px-4">
+                            <div class="flex items-center space-x-1">
+                                <input type="text" id="mod_${key}" value="${escapeHtml(modVal)}" readonly
+                                    class="w-full bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 font-mono focus:bg-white focus:border-indigo-500 focus:outline-none transition">
+                                <button onclick="toggleLock('mod_${key}', this)" title="Unlock to edit" class="p-1.5 text-slate-400 hover:text-indigo-600 transition">
+                                    🔒
+                                </button>
+                            </div>
+                        </td>
+
+                        <!-- Status Indicator -->
+                        <td class="py-3 px-4">
+                            <span id="status_${key}" class="px-2.5 py-1 rounded-full text-xs font-semibold ${origVal === modVal ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}">
+                                ${origVal === modVal ? 'Match' : 'Mismatch'}
+                            </span>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+
+                    // Add live listener to update match tag dynamically
+                    ['orig_' + key, 'mod_' + key].forEach(id => {
+                        document.getElementById(id).addEventListener('input', () => updateMatchStatus(key));
+                    });
+                });
+
+                document.getElementById('resultsSection').classList.remove('hidden');
+            } catch (err) {
+                alert('Error parsing PDFs: ' + err.message);
+            }
+        }
+
+        function toggleLock(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.hasAttribute('readonly')) {
+                input.removeAttribute('readonly');
+                input.classList.remove('bg-slate-100');
+                input.classList.add('bg-white', 'border-indigo-500');
+                btn.textContent = '🔓';
+                btn.title = 'Lock field';
+            } else {
+                input.setAttribute('readonly', 'readonly');
+                input.classList.add('bg-slate-100');
+                input.classList.remove('bg-white', 'border-indigo-500');
+                btn.textContent = '🔒';
+                btn.title = 'Unlock to edit';
+            }
+        }
+
+        function syncField(key) {
+            const origVal = document.getElementById('orig_' + key).value;
+            const modInput = document.getElementById('mod_' + key);
+            modInput.value = origVal;
+            updateMatchStatus(key);
+        }
+
+        function syncAllFields() {
+            const keys = ['SHA256', 'Title', 'Author', 'Subject', 'Keywords', 'Creator', 'Producer', 'CreationDate', 'ModDate'];
+            keys.forEach(key => {
+                const origVal = document.getElementById('orig_' + key).value;
+                document.getElementById('mod_' + key).value = origVal;
+                updateMatchStatus(key);
+            });
+        }
+
+        function updateMatchStatus(key) {
+            const origVal = document.getElementById('orig_' + key).value;
+            const modVal = document.getElementById('mod_' + key).value;
+            const badge = document.getElementById('status_' + key);
+            
+            if (origVal === modVal) {
+                badge.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600';
+                badge.textContent = 'Match';
+            } else {
+                badge.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-600';
+                badge.textContent = 'Mismatch';
+            }
+        }
+
+        async function savePdf(targetType) {
+            const buffer = targetType === 'original' ? originalFileBuffer : modifiedFileBuffer;
+            if (!buffer) return;
+
+            try {
+                const title = document.getElementById(`${targetType}_Title`).value;
+                const author = document.getElementById(`${targetType}_Author`).value;
+                const subject = document.getElementById(`${targetType}_Subject`).value;
+                const keywords = document.getElementById(`${targetType}_Keywords`).value;
+                const creator = document.getElementById(`${targetType}_Creator`).value;
+                const producer = document.getElementById(`${targetType}_Producer`).value;
+
+                const pdfDoc = await PDFLib.PDFDocument.load(buffer);
+                
+                if (title) pdfDoc.setTitle(title);
+                if (author) pdfDoc.setAuthor(author);
+                if (subject) pdfDoc.setSubject(subject);
+                if (keywords) pdfDoc.setKeywords(keywords.split(',').map(k => k.trim()));
+                if (creator) pdfDoc.setCreator(creator);
+                if (producer) pdfDoc.setProducer(producer);
+                
+                pdfDoc.setModificationDate(new Date());
+
+                const pdfBytes = await pdfDoc.save();
+                
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${targetType}_synced_metadata.pdf`;
+                link.click();
+            } catch (err) {
+                alert('Failed to update and export PDF: ' + err.message);
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+</html>
