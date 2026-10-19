@@ -88,24 +88,6 @@ button{cursor:pointer;border:0;background:none}
 button:focus-visible,input:focus-visible,label:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .hide{display:none!important}
 header{height:56px;display:flex;align-items:center;gap:14px;padding:0 16px;background:var(--panel);border-bottom:1px solid var(--line);flex:none}
-.logo{display:grid;align-items:center;font-weight:800;font-size:16px;letter-spacing:-.02em}
-.logo i{width:30px;height:30px;border-radius:9px;background:var(--acc);color:#fff;display:grid;place-items:center;font-size:14px}
-.logo b{color:var(--acc)}
-/* logo rotator: editpdf.ink -> atralix -> powered by atralix (loops forever) */
-.logo .slide{grid-area:1/1;display:flex;align-items:center;gap:9px;white-space:nowrap;opacity:0;animation:logoSwap 9s ease-in-out infinite both}
-.logo .s2{animation-delay:3s}
-.logo .s3{animation-delay:6s}
-.logo .amark{width:30px;height:30px;border-radius:9px;background:#3D4DFF;display:grid;place-items:center;flex:none}
-.logo .amark svg{width:17px;height:17px;fill:#FFD84D}
-.logo .s3 .amark{animation:logoPop 9s ease-in-out 6s infinite both}
-.logo em{font-style:normal}
-.logo .stack{display:grid;gap:2px}
-.logo .stack small{font-size:10.5px;font-weight:600;letter-spacing:0;line-height:1;color:var(--mute)}
-.logo .stack em{font-size:15px;line-height:1}
-@keyframes logoSwap{0%{opacity:0;transform:translateY(8px)}5%,28%{opacity:1;transform:none}33%,100%{opacity:0;transform:translateY(-8px)}}
-@keyframes logoPop{0%,4%{transform:scale(1)}9%{transform:scale(1.18) rotate(-6deg)}15%,100%{transform:scale(1)}}
-@media(max-width:760px){.logo .atx{display:none}}
-@media(prefers-reduced-motion:reduce){.logo{display:flex;gap:14px}.logo .slide{animation:none;opacity:1}.logo .s2{display:none}.logo .s3 .amark{animation:none}}
 #fname{background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:7px 11px;width:260px;max-width:30vw}
 .sp{flex:1}
 .grp{display:flex;align-items:center;gap:2px}
@@ -193,7 +175,7 @@ details.adv summary{cursor:pointer;font-weight:700;margin-bottom:8px}
 .res small{display:block;color:var(--text);font-weight:700;font-size:10.5px;margin-bottom:2px}
 .res mark{background:var(--accbg);color:var(--acc);font-weight:700;border-radius:3px}
 .res:hover,.res.on{background:var(--raise)}
-@media(max-width:1180px){.logo span{display:none}#fname{width:150px}}
+@media(max-width:1180px){#fname{width:150px}}
 @media(max-width:860px){#fname{width:140px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
@@ -213,7 +195,7 @@ details.adv summary{cursor:pointer;font-weight:700;margin-bottom:8px}
 @media(min-width:761px){#selbar{display:none!important}}
 @media(max-width:760px){
   header{gap:6px;padding:0 8px;height:52px}
-  .logo span,#fname,#zout,#zin,#zlab,#pPrev,#pNext,#close,header .vr,.btn .bl{display:none}
+  #fname,#zout,#zin,#zlab,#pPrev,#pNext,#close,header .vr,.btn .bl{display:none}
   .btn{padding:8px 10px}
   #tools{padding:0 8px}
   main{flex-direction:column}
@@ -286,6 +268,104 @@ details.adv summary{cursor:pointer;font-weight:700;margin-bottom:8px}
 .bmcb span{font-size:17px;line-height:1}
 .bmcb:hover{filter:brightness(1.07)}
 @media(max-width:760px){.bmcb{flex:1;width:auto;margin:6px 2px;padding:5px 0 4px;gap:2px}}
+
+/* ===== UI polish: one type scale, consistent sizes, looping logo ===== */
+:root{--fs-xs:11.5px;--fs-sm:12.5px;--fs-md:13.5px;--fs-lg:16px;--fs-xl:22px}
+body{font-size:var(--fs-md);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+button,input{font-size:inherit}
+
+/* logo: a single slot, alternates editpdf.ink <-> powered by atralix, loops forever */
+.logo{position:relative;display:grid;align-items:center;height:38px;min-width:158px;flex:none;overflow:hidden;font-weight:800}
+.logo .slide{grid-area:1/1;display:flex;align-items:center;gap:10px;white-space:nowrap;opacity:0;animation:logoSwap 8s cubic-bezier(.4,0,.2,1) infinite both}
+.logo .s2{animation-delay:4s}
+.logo .mk{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--acc);color:#fff;animation:mkIn 8s ease-out infinite both}
+.logo .s2 .mk{animation-delay:4s}
+.logo .mk svg{width:18px;height:18px;display:block}
+.logo .amark{background:#3D4DFF}
+.logo .amark svg{fill:#FFD84D}
+.logo .nm{font-size:17px;letter-spacing:-.02em;line-height:1}
+.logo .nm b{color:var(--acc);font-weight:800}
+.logo .stack{display:grid;gap:3px}
+.logo .stack small{font-size:10.5px;font-weight:600;line-height:1;color:var(--mute);letter-spacing:.01em}
+.logo .stack em{font-style:normal;font-size:16px;font-weight:800;line-height:1;letter-spacing:-.01em}
+@keyframes logoSwap{0%{opacity:0;transform:translateY(14px) scale(.96)}8%,44%{opacity:1;transform:none}52%,100%{opacity:0;transform:translateY(-14px) scale(.96)}}
+@keyframes mkIn{0%{transform:rotate(-14deg) scale(.8)}9%{transform:rotate(0) scale(1.1)}14%,100%{transform:none}}
+@keyframes logoFade{0%{opacity:0}8%,44%{opacity:1}52%,100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.logo .slide{animation-name:logoFade;transform:none}.logo .mk{animation:none}}
+
+/* header */
+header{height:58px;gap:12px;padding:0 18px}
+#fname{height:36px;padding:0 12px;width:240px;font-size:var(--fs-md);font-weight:600}
+.ib{width:36px;height:36px;font-size:15px}
+.pill{font-size:var(--fs-md);min-width:52px}
+#pgIn{height:34px;width:46px;font-size:var(--fs-md);font-weight:600;padding:0}
+#pTot{min-width:36px}
+.btn{height:38px;padding:0 16px;font-size:var(--fs-md);font-weight:700;white-space:nowrap;line-height:1;gap:8px}
+.btn i{font-size:15px}
+
+/* tool strip */
+#tools{height:68px;gap:2px;padding:0 14px}
+.tool{flex:none;min-width:60px;height:54px;padding:0 8px;gap:5px;font-size:var(--fs-xs);font-weight:600;white-space:nowrap}
+.tool i{font-size:16px}
+.vr{height:30px;margin:0 8px}
+.opt{flex:none;gap:9px;font-size:var(--fs-xs);margin-left:6px}
+.opt span{color:var(--text);font-weight:700;text-align:right}
+input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;background:var(--line);width:88px;cursor:pointer;outline-offset:8px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--acc);border:3px solid var(--panel);box-shadow:0 0 0 1px var(--acc)}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:var(--acc);border:3px solid var(--panel);box-shadow:0 0 0 1px var(--acc)}
+input[type=color]{width:30px;height:30px}
+
+/* left rail */
+#rail{width:72px;padding:12px 0;gap:6px}
+.rb{width:60px;padding:10px 0 8px;font-size:var(--fs-xs);gap:5px}
+.rb i{font-size:18px}
+.bmcb{width:60px;margin-top:12px;padding:9px 0 7px;font-size:var(--fs-xs)}
+.bmcb span{font-size:18px}
+
+/* right panel */
+.tab{font-size:var(--fs-md);padding:14px 0}
+.pane{padding:16px}
+.note{font-size:var(--fs-md)}
+.thumb div{font-size:var(--fs-xs)}
+.f label,.sbar{font-size:var(--fs-xs)}
+
+/* start screen */
+.drop{padding:48px 32px}
+.drop>i{font-size:36px;margin-bottom:16px}
+.drop h2{font-size:var(--fs-xl);font-weight:800;line-height:1.2;margin:0 0 8px}
+.drop p{font-size:var(--fs-md);line-height:1.55;margin:0 auto 24px;max-width:340px}
+.drop .btn{margin:4px!important}
+
+/* ads: no blank white boxes when nothing loads */
+.adslot small,.adbanner small{font-size:var(--fs-xs);letter-spacing:.02em}
+.adslot ins,.adbanner ins{background:var(--raise);border:1px dashed var(--line);border-radius:10px}
+.adbanner:has(ins[data-ad-status=unfilled]),.adslot:has(ins[data-ad-status=unfilled]){display:none}
+
+/* modals + misc type */
+.card h3{font-size:var(--fs-lg)}.card h4{font-size:var(--fs-xs)}
+.tcard b{font-size:var(--fs-md)}.tcard small{font-size:var(--fs-sm)}
+#toast{font-size:var(--fs-md)}
+
+
+/* fit toolbar without clipping the Font slider */
+#tools{gap:0;padding:0 12px}
+.tool{min-width:52px;padding:0 5px}
+.vr{margin:0 6px}
+.opt{gap:7px;margin-left:4px}
+input[type=range]{width:72px}
+.opt+.opt{margin-left:16px}
+/* start card: three buttons on one row */
+.drop{width:min(540px,100%);padding:48px 28px}
+.drop .btn{padding:0 14px;margin:4px 3px!important}
+@media(max-width:760px){
+  header{height:54px;gap:8px;padding:0 10px}
+  .logo{min-width:150px;height:36px}
+  .btn{padding:0 12px}
+  #tools{height:62px}
+  .tool{min-width:54px;height:50px}
+  #rail{width:100%}
+  .rb{width:auto;flex:1}
+}
 </style>
 <!-- ===== GOOGLE ADSENSE (1/3): replace ca-pub-XXXXXXXXXXXXXXXX with your publisher ID ===== -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3793154131362627" crossorigin="anonymous"></script></head>
@@ -293,9 +373,14 @@ details.adv summary{cursor:pointer;font-weight:700;margin-bottom:8px}
 <body>
 <header>
   <div class="logo" role="img" aria-label="editpdf.ink, powered by Atralix">
-    <div class="slide s1" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i><span>editpdf.ink</span></div>
-    <div class="slide s2" aria-hidden="true"><div class="amark"><svg viewBox="0 0 100 100"><path d="M50 12 14 88h20l16-38 16 38h20z"/></svg></div><em class="atx">atralix</em></div>
-    <div class="slide s3" aria-hidden="true"><div class="amark"><svg viewBox="0 0 100 100"><path d="M50 12 14 88h20l16-38 16 38h20z"/></svg></div><div class="stack atx"><small>powered by</small><em>atralix</em></div></div>
+    <div class="slide s1" aria-hidden="true">
+      <span class="mk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span>
+      <span class="nm">editpdf<b>.ink</b></span>
+    </div>
+    <div class="slide s2" aria-hidden="true">
+      <span class="mk amark"><svg viewBox="0 0 100 100"><path d="M50 12 14 88h20l16-38 16 38h20z"/></svg></span>
+      <span class="stack"><small>powered by</small><em>atralix</em></span>
+    </div>
   </div>
   <input id="fname" value="Untitled.pdf" aria-label="File name" disabled>
   <div class="sp"></div>
