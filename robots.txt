@@ -1,4 +1,14 @@
 User-agent: *
 Allow: /
-
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: Anthropic-ai
+User-agent: ClaudeBot
+User-agent: PerplexityBot
+User-agent: Google-Extended
+User-agent: CCBot
+User-agent: Bytespider
+User-agent: Diffbot
+User-agent: FacebookBot
+Disallow: /
 Sitemap: https://editpdf.ink/sitemap.xml
