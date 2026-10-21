@@ -18,3 +18,13 @@ PDF Watermark | pdf-watermark.html | Add a watermark to your PDF pages | droplet
 QR Generator & Decoder | qr-generator-decoder.html | Create and read QR codes | qrcode
 PDF Compare | pdf-compare.html | Compare maximum 4 pdfs | file-pdf
 EXIF Remover | exif-remover.html | Strip location and camera data from photos | shield
+Add Page Numbers | add-page-numbers.html | Add page numbers to a PDF | file-pdf
+Compress PDF | compress-pdf.html | Reduce PDF file size | file-pdf
+Crop PDF | crop-pdf.html | Trim margins from PDF pages | file-pdf
+Edit PDF Metadata | edit-pdf-metadata.html | View, edit or clear PDF metadata | wrench
+Fill PDF Form | fill-pdf-form.html | Type into fillable PDF form fields | wrench
+JPG to PDF | jpg-to-pdf.html | Combine images into one PDF | image
+PDF to JPG | pdf-to-jpg.html | Convert PDF pages to JPG or PNG images | image
+PDF to Text | pdf-to-text.html | Extract selectable text from a PDF | scan-text
+Rearrange PDF Pages | rearrange-pdf.html | Reorder, duplicate or delete PDF pages | file-pdf
+Rotate PDF | rotate-pdf.html | Rotate PDF pages by 90, 180 or 270 degrees | wrench
