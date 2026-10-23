@@ -265,6 +265,22 @@ button,input{font-size:inherit}
 @media(prefers-reduced-motion:reduce){.logo .slide{animation-name:logoFade;transform:none}.logo .mk{animation:none}}
 
 
+/* merge & split page picker */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;margin:10px 0 4px}
+.pcell{position:relative;padding:5px;border-radius:9px;border:2px solid var(--line);background:var(--raise);cursor:pointer;opacity:.45;transition:opacity .12s,border-color .12s}
+.pcell canvas{display:block;width:100%;height:auto;aspect-ratio:3/4;background:#fff;border-radius:4px}
+.pcell .pn{display:block;text-align:center;margin-top:4px;font-size:11px;font-weight:700;color:var(--mute)}
+.pcell .pk{position:absolute;top:8px;right:8px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-size:10px;background:#0009;color:#fff;border:1.5px solid #fff8}
+.pcell .pk i{opacity:0}
+.pcell.on{opacity:1;border-color:var(--acc)}
+.pcell.on .pk{background:var(--acc);border-color:var(--acc)}.pcell.on .pk i{opacity:1}
+.pgrid.allon .pcell{opacity:1;border-color:var(--acc)}.pgrid.ro .pcell{pointer-events:none}.pgrid.ro .pk{display:none}
+.ptool{display:flex;align-items:center;gap:8px;margin-top:6px}.ptool .sp{flex:1}.ptool .btn{padding:5px 10px;font-size:12px}
+.msrc{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px;background:var(--panel)}
+.msrc .mh{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.msrc .mh b{font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:46%}
+.msrc .mh small{color:var(--mute);font-weight:600}.msrc .mh .sp{flex:1}
+.msrc .mh .btn{padding:4px 9px;font-size:11.5px}
 /* support / contact form */
 .cform{display:grid;gap:14px}
 .cform label{display:grid;gap:6px;color:var(--mute);font-size:12px;font-weight:600}
@@ -425,7 +441,7 @@ input[type=range]{width:72px}
         <h2>Open a PDF to start editing</h2>
         <p>Drag a file here, or pick one from your device. Everything stays in your browser.</p>
         <button class="btn pri" id="open2"><i class="fa-solid fa-folder-open"></i>Choose PDF</button>
-        <button class="btn" id="open3" style="margin-left:8px"><i class="fa-solid fa-merge"></i>Merge PDFs</button>
+        <button class="btn" id="open3" style="margin-left:8px"><i class="fa-solid fa-merge"></i>Merge/Split PDF</button>
         <button class="btn" id="open4" style="margin-left:8px;margin-top:8px"><i class="fa-solid fa-wrench"></i>More tools</button>
       </div>
 
@@ -550,21 +566,26 @@ input[type=range]{width:72px}
   </div>
 </div></div>
 
-<div class="modal hide" id="mOrg"><div class="card" style="width:min(560px,100%)">
+<div class="modal hide" id="mOrg"><div class="card" style="width:min(880px,100%)">
   <h3>Merge &amp; split <button class="ib" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button></h3>
   <div class="seg"><button class="on" id="oMerge">Merge</button><button id="oSplit">Split</button></div>
   <div id="pMerge">
     <label class="chk hide" id="mCurW"><input type="checkbox" id="mCur" checked>Include the open document (with my edits) first</label>
     <button class="btn" id="mAdd"><i class="fa-solid fa-plus"></i>Add PDF files</button>
+    <p class="note" style="margin:10px 0 0">Tap a page to include or leave it out. Only the highlighted pages are merged, in the order shown.</p>
     <div id="mList"></div>
     <div class="row2"><button class="btn" id="mGo">Merge &amp; download</button><button class="btn pri" id="mOpen">Merge &amp; open</button></div>
   </div>
   <div id="pSplit" class="hide">
-    <div id="spNo" class="note">Open a PDF first, then split it here.</div>
+    <div id="spNo"><div class="note" style="margin-bottom:12px">Choose the PDF you want to split.</div><button class="btn pri" id="spPick" style="width:100%;justify-content:center"><i class="fa-solid fa-file-arrow-up"></i>Choose PDF to split</button></div>
     <div id="spBody">
-      <p id="spInfo" style="margin:0 0 12px;color:var(--mute)"></p>
-      <div class="f"><label>Split mode</label><select id="spMode" class="txt">
-        <option value="extract">Extract pages into one PDF</option>
+      <div style="display:flex;align-items:center;gap:10px;margin:0 0 12px"><p id="spInfo" style="margin:0;color:var(--mute);flex:1;min-width:0"></p><button class="btn" id="spPick2" title="Choose a different PDF"><i class="fa-solid fa-file-arrow-up"></i><span class="bl">Change PDF</span></button></div>
+      <div class="ptool"><span id="spCnt"></span><span class="sp"></span><button class="btn" id="spAll">Select all</button><button class="btn" id="spNone">Clear</button></div>
+      <div id="spGrid"></div>
+      <div class="f" style="margin-top:12px"><label>Split mode</label><select id="spMode" class="txt">
+        <option value="picked">Selected pages into one PDF</option>
+        <option value="pickedEach">Each selected page as its own file</option>
+        <option value="extract">Extract pages into one PDF (type ranges)</option>
         <option value="ranges">Split by ranges (one file each)</option>
         <option value="every">Every N pages</option>
         <option value="each">Every page as its own file</option></select></div>
@@ -573,6 +594,7 @@ input[type=range]{width:72px}
     </div>
   </div>
   <input type="file" id="mIn" accept="application/pdf,.pdf" multiple class="hide">
+  <input type="file" id="spIn" accept="application/pdf,.pdf" class="hide">
 </div></div>
 <div class="modal hide" id="mTools"><div class="card" style="width:min(720px,100%)">
   <h3>More tools <button class="ib" data-close aria-label="Close"><i class="fa-solid fa-xmark"></i></button></h3>
@@ -1174,54 +1196,117 @@ function editLine(p,pt){
 }
 
 // ---------- merge & split ----------
-const M={files:[]},escH=t=>t.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const M={files:[],cur:new Set(),curKey:''},escH=t=>t.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const baseName=()=>(S.name||'document').replace(/\.pdf$/i,'');
 function openOrg(tab){orgTab(tab||'merge');renderM();openM('mOrg')}
-function orgTab(t){$('oMerge').classList.toggle('on',t==='merge');$('oSplit').classList.toggle('on',t==='split');$('pMerge').classList.toggle('hide',t!=='merge');$('pSplit').classList.toggle('hide',t!=='split');if(t==='split')updSplit()}
+function orgTab(t){$('oMerge').classList.toggle('on',t==='merge');$('oSplit').classList.toggle('on',t==='split');$('pMerge').classList.toggle('hide',t!=='merge');$('pSplit').classList.toggle('hide',t!=='split');if(t==='split'){updSplit();buildSplitGrid()}}
 $('oMerge').onclick=()=>orgTab('merge');$('oSplit').onclick=()=>orgTab('split');
 $('open3').onclick=()=>openOrg('merge');$('mAdd').onclick=()=>$('mIn').click();
-$('mIn').onchange=async e=>{for(const f of e.target.files)M.files.push({name:f.name,size:f.size,bytes:new Uint8Array(await f.arrayBuffer())});e.target.value='';renderM()};
+
+// ---- page picker helpers
+const thQ={p:Promise.resolve()};
+const thIO=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){thIO.unobserve(e.target);const f=e.target._draw;if(f)thQ.p=thQ.p.then(f).catch(()=>{})}}),{rootMargin:'300px'});
+function pageGrid(count,sel,draw,onChange){
+  const g=document.createElement('div');g.className='pgrid';const cells=[];
+  for(let i=0;i<count;i++){
+    const c=document.createElement('button');c.type='button';c.className='pcell'+(sel.has(i)?' on':'');
+    c.setAttribute('aria-label','Page '+(i+1));
+    c.innerHTML='<canvas width="120" height="160"></canvas><span class="pn">'+(i+1)+'</span><span class="pk"><i class="fa-solid fa-check"></i></span>';
+    const cv=c.querySelector('canvas');cv._draw=()=>draw(i,cv);
+    c.onclick=()=>{sel.has(i)?sel.delete(i):sel.add(i);c.classList.toggle('on',sel.has(i));onChange&&onChange()};
+    g.appendChild(c);cells.push(c);thIO.observe(cv);
+  }
+  g.refresh=()=>cells.forEach((c,i)=>c.classList.toggle('on',sel.has(i)));
+  return g;
+}
+async function drawDocThumb(doc,i,cv){const pg=await doc.getPage(i+1),vp=pg.getViewport({scale:160/pg.getViewport({scale:1}).width});cv.width=vp.width;cv.height=vp.height;await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise}
+async function drawLiveThumb(i,cv){const p=live()[i];if(!p)return;const vp=p.pgj.getViewport({scale:160/p.w});cv.width=vp.width;cv.height=vp.height;const cx=cv.getContext('2d');await p.pgj.render({canvasContext:cx,viewport:vp}).promise;try{cx.drawImage(p.fc.lowerCanvasEl,0,0,cv.width,cv.height)}catch(e){}}
+const rangeStr=set=>{const a=[...set].sort((x,y)=>x-y),o=[];for(let i=0;i<a.length;){let j=i;while(a[j+1]===a[j]+1)j++;o.push(j>i?(a[i]+1)+'-'+(a[j]+1):''+(a[i]+1));i=j+1}return o.join(', ')};
+
+$('mIn').onchange=async e=>{
+  const fs=[...e.target.files];e.target.value='';if(!fs.length)return;
+  busy('Reading PDFs…');await tick();
+  for(const f of fs){
+    try{const bytes=new Uint8Array(await f.arrayBuffer()),doc=await pdfjsLib.getDocument({data:bytes.slice()}).promise;
+      M.files.push({name:f.name,size:f.size,bytes,doc,n:doc.numPages,sel:new Set(Array.from({length:doc.numPages},(_,i)=>i))})}
+    catch(err){console.error(err);toast('Couldn’t read '+f.name)}
+  }
+  busy();renderM();
+};
+$('mCur').onchange=()=>renderM();
 function renderM(){
   $('mCurW').classList.toggle('hide',!S.pdf);
   const L=$('mList');L.innerHTML='';
+  const key=S.pdf?S.name+':'+live().length:'';
+  if(M.curKey!==key){M.curKey=key;M.cur=new Set(S.pdf?live().map((_,i)=>i):[])}
+  const addCard=(title,count,sel,draw,ctrl)=>{
+    const card=document.createElement('div');card.className='msrc';
+    card.innerHTML=`<div class="mh"><i class="fa-solid fa-file-pdf"></i><b title="${escH(title)}">${escH(title)}</b><small></small><span class="sp"></span><button class="btn" data-a="all">All</button><button class="btn" data-a="none">None</button>${ctrl||''}</div>`;
+    const cnt=card.querySelector('small'),upd=()=>cnt.textContent=sel.size+' of '+count+' pages';
+    const g=pageGrid(count,sel,draw,upd);card.appendChild(g);upd();
+    card.querySelector('.mh').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
+      if(a==='all'){for(let i=0;i<count;i++)sel.add(i);g.refresh();upd()}
+      else if(a==='none'){sel.clear();g.refresh();upd()}
+      else card.onAction&&card.onAction(a)};
+    L.appendChild(card);return card;
+  };
+  if(S.pdf&&$('mCur').checked)addCard(S.name+' (open document, with your edits)',live().length,M.cur,drawLiveThumb);
+  const btns='<button class="ib" data-a="up" aria-label="Move up"><i class="fa-solid fa-arrow-up"></i></button><button class="ib" data-a="dn" aria-label="Move down"><i class="fa-solid fa-arrow-down"></i></button><button class="ib" data-a="rm" aria-label="Remove file"><i class="fa-solid fa-xmark"></i></button>';
   M.files.forEach((f,i)=>{
-    const r=document.createElement('div');r.className='mrow';
-    r.innerHTML=`<i class="fa-solid fa-file-pdf"></i><span>${escH(f.name)}</span><small>${Math.max(1,Math.round(f.size/1024))} KB</small><button class="ib" data-a="up" aria-label="Move up"><i class="fa-solid fa-arrow-up"></i></button><button class="ib" data-a="dn" aria-label="Move down"><i class="fa-solid fa-arrow-down"></i></button><button class="ib" data-a="rm" aria-label="Remove"><i class="fa-solid fa-xmark"></i></button>`;
-    r.onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
-      if(a==='rm')M.files.splice(i,1);else{const j=i+(a==='up'?-1:1);if(j<0||j>=M.files.length)return;[M.files[i],M.files[j]]=[M.files[j],M.files[i]]}renderM()};
-    L.appendChild(r);
+    const c=addCard(f.name+' · '+Math.max(1,Math.round(f.size/1024))+' KB',f.n,f.sel,(k,cv)=>drawDocThumb(f.doc,k,cv),btns);
+    c.onAction=a=>{if(a==='rm'){try{f.doc.destroy()}catch(e){}M.files.splice(i,1)}else{const j=i+(a==='up'?-1:1);if(j<0||j>=M.files.length)return;[M.files[i],M.files[j]]=[M.files[j],M.files[i]]}renderM()};
   });
-  if(!M.files.length)L.innerHTML='<div class="note">'+(S.pdf?'Add the PDFs to append after your open document.':'Add two or more PDF files to merge them.')+'</div>';
+  if(!L.children.length)L.innerHTML='<div class="note">'+(S.pdf?'Add the PDFs to merge with your open document.':'Add two or more PDF files to merge them. You will see every page and can choose which to keep.')+'</div>';
 }
 async function doMerge(openAfter){
   const parts=[];
-  if(S.pdf&&$('mCur').checked)parts.push({name:S.name,get:()=>buildPdf()});
-  M.files.forEach(f=>parts.push({name:f.name,get:async()=>f.bytes}));
-  if(parts.length<2)return toast('Pick at least two PDFs to merge');
-  busy('Merging…');
+  if(S.pdf&&$('mCur').checked&&M.cur.size)parts.push({name:S.name,idx:[...M.cur].sort((a,b)=>a-b),get:()=>buildPdf(),cur:true});
+  M.files.forEach(f=>{if(f.sel.size)parts.push({name:f.name,idx:[...f.sel].sort((a,b)=>a-b),get:async()=>f.bytes})});
+  if(parts.length<2)return toast('Select pages from at least two PDFs');
+  busy('Merging…');await tick();
   try{
-    const{PDFDocument}=PDFLib,out=await PDFDocument.create();
+    const{PDFDocument}=PDFLib,out=await PDFDocument.create();let total=0;
     for(const p of parts){
       let d;try{d=await PDFDocument.load(await p.get(),{ignoreEncryption:true})}catch(e){throw new Error('Couldn’t read '+p.name)}
-      (await out.copyPages(d,d.getPageIndices())).forEach(pg=>out.addPage(pg));
+      (await out.copyPages(d,p.idx)).forEach(pg=>out.addPage(pg));total+=p.idx.length;
     }
     const bytes=await out.save();$('mOrg').classList.add('hide');
     if(openAfter){
-      if(S.pdf&&$('mCur').checked){S.pages.forEach(p=>p.savedHi=p.hi);S.delDirty=false}
-      busy();await openFile(new File([bytes],'merged.pdf',{type:'application/pdf'}));M.files=[];return;
+      if(parts.some(p=>p.cur)){S.pages.forEach(p=>p.savedHi=p.hi);S.delDirty=false}
+      busy();await openFile(new File([bytes],'merged.pdf',{type:'application/pdf'}));M.files.forEach(f=>{try{f.doc.destroy()}catch(e){}});M.files=[];return;
     }
-    download(new Blob([bytes],{type:'application/pdf'}),'merged.pdf');toast('Merged '+parts.length+' files');
+    download(new Blob([bytes],{type:'application/pdf'}),'merged.pdf');toast('Merged '+total+' pages from '+parts.length+' files');
   }catch(e){console.error(e);toast(e.message||'Merge failed')}
   busy();
 }
-const SPL={extract:['Pages to extract','e.g. 1-3, 5, 8-10'],ranges:['Ranges (each becomes its own file)','e.g. 1-3, 4-6, 7'],every:['Pages per file','e.g. 2'],each:['','']};
+const SPL={picked:['',''],pickedEach:['',''],extract:['Pages to extract','e.g. 1-3, 5, 8-10'],ranges:['Ranges (each becomes its own file)','e.g. 1-3, 4-6, 7'],every:['Pages per file','e.g. 2'],each:['','']};
+const SP={sel:new Set(),key:'',grid:null};
+function spCount(){$('spCnt').textContent=SP.sel.size+' of '+live().length+' pages selected'}
+function spSync(){const m=$('spMode').value;if(m==='extract'||m==='ranges')$('spVal').value=rangeStr(SP.sel);spCount()}
+function buildSplitGrid(){
+  const W=$('spGrid');W.innerHTML='';SP.grid=null;if(!S.pdf)return;
+  const key=S.name+':'+live().length+':'+(S.bytes?S.bytes.length:0);
+  if(SP.key!==key){SP.key=key;SP.sel=new Set();$('spVal').value=''}
+  SP.grid=pageGrid(live().length,SP.sel,drawLiveThumb,spSync);W.appendChild(SP.grid);spCount();updSplit();
+}
 function updSplit(){
   const has=!!S.pdf,m=$('spMode').value;
   $('spNo').classList.toggle('hide',has);$('spBody').classList.toggle('hide',!has);if(!has)return;
-  $('spInfo').textContent=live().length+' pages in the open document. Your edits are included.';
-  $('spVW').classList.toggle('hide',m==='each');$('spLab').textContent=SPL[m][0];$('spVal').placeholder=SPL[m][1];
+  $('spInfo').textContent=(S.name||'Document')+' · '+live().length+' page'+(live().length>1?'s':'')+'. Your edits are included.';
+  $('spVW').classList.toggle('hide',m==='each'||m==='picked'||m==='pickedEach');$('spLab').textContent=SPL[m][0];$('spVal').placeholder=SPL[m][1];
+  const ro=m==='each'||m==='every';$('spAll').parentElement.classList.toggle('hide',ro);
+  if(SP.grid){SP.grid.classList.toggle('ro',ro);SP.grid.classList.toggle('allon',ro);if(!ro)SP.grid.refresh()}
+  if(m==='extract'||m==='ranges'){if(!$('spVal').value&&SP.sel.size)$('spVal').value=rangeStr(SP.sel)}
+  spCount();
 }
-$('spMode').onchange=updSplit;
+$('spAll').onclick=()=>{live().forEach((_,i)=>SP.sel.add(i));SP.grid&&SP.grid.refresh();spSync()};
+$('spNone').onclick=()=>{SP.sel.clear();SP.grid&&SP.grid.refresh();spSync()};
+$('spVal').addEventListener('input',()=>{const m=$('spMode').value;if(m!=='extract'&&m!=='ranges')return;const n=live().length;SP.sel.clear();
+  $('spVal').value.split(',').forEach(t=>{const r=t.trim().match(/^(\d+)(?:\s*-\s*(\d+))?$/);if(!r)return;let x=+r[1],y=+(r[2]||r[1]);if(x>y)[x,y]=[y,x];for(let i=Math.max(1,x);i<=Math.min(n,y);i++)SP.sel.add(i-1)});
+  SP.grid&&SP.grid.refresh();spCount()});
+$('spMode').onchange=()=>{updSplit();spSync()};
+$('spPick').onclick=$('spPick2').onclick=()=>$('spIn').click();
+$('spIn').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;await openFile(f);buildSplitGrid()};
 function groups(str,n){
   const out=[];
   str.split(',').map(x=>x.trim()).filter(Boolean).forEach(tok=>{
@@ -1235,7 +1320,9 @@ async function doSplit(){
   if(!S.pdf)return;
   const mode=$('spMode').value,n=live().length,val=$('spVal').value;let jobs;
   try{
-    if(mode==='extract'){const g=groups(val,n);jobs=[{g:g.flatMap(x=>x.g),label:'pages'}]}
+    if(mode==='picked'){if(!SP.sel.size)throw new Error('Tap the pages you want to keep first');jobs=[{g:[...SP.sel].sort((a,b)=>a-b),label:'selected'}]}
+    else if(mode==='pickedEach'){if(!SP.sel.size)throw new Error('Tap the pages you want to split out first');jobs=[...SP.sel].sort((a,b)=>a-b).map(i=>({g:[i],label:''+(i+1)}))}
+    else if(mode==='extract'){const g=groups(val,n);jobs=[{g:g.flatMap(x=>x.g),label:'pages'}]}
     else if(mode==='ranges')jobs=groups(val,n);
     else{
       const k=mode==='each'?1:parseInt(val);if(!k||k<1)throw new Error('Enter how many pages go in each file');
