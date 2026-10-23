@@ -116,7 +116,15 @@ aside{min-height:0;overflow:hidden;width:280px;background:var(--panel);border-le
 .adbanner ins{min-height:90px}
 #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--raise);border:1px solid var(--line);padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:.2s;z-index:60;box-shadow:0 10px 30px #0008}
 #toast.show{opacity:1;transform:translateX(-50%)}
-#busy{position:fixed;inset:0;background:#000a;display:grid;place-items:center;z-index:70;font-weight:700}
+#busy{position:fixed;inset:0;background:#000a;backdrop-filter:blur(2px);display:grid;place-items:center;z-index:70;font-weight:700}
+#busy .bcard{display:flex;align-items:center;gap:14px;min-width:260px;max-width:min(420px,90vw);padding:16px 20px;border-radius:14px;background:var(--panel,var(--raise,#1b1e24));color:var(--text,#fff);border:1px solid var(--line,#ffffff22);box-shadow:0 12px 40px #0006}
+#busy .bspin{width:26px;height:26px;flex:none;border-radius:50%;border:3px solid var(--line,#ffffff33);border-top-color:var(--acc,#5aa9ff);animation:bspin .8s linear infinite}
+#busy .btx{min-width:0;flex:1}
+#busyT{font-size:14px}
+#busyS{display:block;margin-top:2px;font-size:11.5px;font-weight:600;color:var(--mute,#9aa);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#busy .bbar{height:4px;margin-top:8px;border-radius:99px;background:var(--line,#ffffff22);overflow:hidden}
+#busy .bbar i{display:block;height:100%;width:0;background:var(--acc,#5aa9ff);transition:width .15s}
+@keyframes bspin{to{transform:rotate(360deg)}}
 ::-webkit-scrollbar{width:13px;height:13px}::-webkit-scrollbar-thumb{background:#5b6474;border-radius:8px;border:3px solid #181b21}::-webkit-scrollbar-thumb:hover{background:#7a8496}::-webkit-scrollbar-track{background:#181b21}::-webkit-scrollbar-corner{background:#181b21}
 @supports not selector(::-webkit-scrollbar){*{scrollbar-color:#5b6474 #181b21}}
 #stage{outline:none;overflow-y:scroll;overflow-x:auto}
@@ -255,62 +263,6 @@ button,input{font-size:inherit}
 @keyframes mkIn{0%{transform:rotate(-14deg) scale(.8)}9%{transform:rotate(0) scale(1.1)}14%,100%{transform:none}}
 @keyframes logoFade{0%{opacity:0}8%,44%{opacity:1}52%,100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.logo .slide{animation-name:logoFade;transform:none}.logo .mk{animation:none}}
-
-/* TheSudoLab Custom Banner Style */
-.sudolab-ad-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(135deg, rgba(255, 51, 51, 0.12), rgba(27, 30, 36, 0.9));
-  border: 1px solid rgba(255, 51, 51, 0.35);
-  border-radius: 14px;
-  padding: 14px 20px;
-  width: min(540px, 100%);
-  margin-bottom: 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  text-decoration: none;
-  transition: transform 0.2s ease, border-color 0.2s ease;
-}
-.sudolab-ad-banner:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 51, 51, 0.7);
-}
-.sudolab-ad-content {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.sudolab-ad-icon {
-  width: 38px;
-  height: 38px;
-  background: rgba(255, 51, 51, 0.2);
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  color: #ff3333;
-  flex: none;
-}
-.sudolab-ad-text b {
-  display: block;
-  font-size: 14px;
-  color: var(--text);
-  margin-bottom: 2px;
-}
-.sudolab-ad-text small {
-  display: block;
-  font-size: 11.5px;
-  color: var(--mute);
-}
-.sudolab-ad-btn {
-  background: #ff3333;
-  color: #fff;
-  padding: 6px 14px;
-  border-radius: 99px;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(255, 51, 51, 0.3);
-}
 
 
 /* support / contact form */
@@ -468,20 +420,6 @@ input[type=range]{width:72px}
   <div id="stage" tabindex="0">
     <div id="pages"></div>
     <div id="empty">
-      <!-- TheSudoLab Advertisement Banner -->
-      <a href="https://thesudolab.xyz/" target="_blank" rel="noopener" class="sudolab-ad-banner">
-        <div class="sudolab-ad-content">
-          <div class="sudolab-ad-icon">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <div class="sudolab-ad-text">
-            <b>TheSudoLab Security Research Collective</b>
-            <small>Adversary simulation, penetration testing &amp; intelligence</small>
-          </div>
-        </div>
-        <span class="sudolab-ad-btn">Explore</span>
-      </a>
-
       <div class="drop" id="drop">
         <i class="fa-regular fa-file-pdf"></i>
         <h2>Open a PDF to start editing</h2>
@@ -540,6 +478,7 @@ input[type=range]{width:72px}
         <label class="chk"><input type="checkbox" id="sCur">Current page only</label>
         <div class="f" style="margin:8px 0 0"><label>Page range</label><input id="sRng" class="txt" placeholder="e.g. 1-3, 5" aria-label="Page range"></div>
         <div class="row2" style="margin-top:12px"><button class="btn" id="sHl">Highlight all</button><button class="btn" id="sRd">Redact all</button></div>
+        <div class="row2" style="margin-top:8px;grid-template-columns:1fr"><button class="btn" id="sBl" title="Blur every match in one go. Strength follows the Stroke / blur slider."><i class="fa-solid fa-droplet"></i>Blur all</button></div>
       </details>
       <div id="sErr" class="err"></div>
       <div id="sList"></div>
@@ -653,7 +592,7 @@ input[type=range]{width:72px}
 </div>
 <div id="selbar" class="hide"><button class="btn" id="sbDel" style="color:#ff7b7b"><i class="fa-solid fa-trash"></i>Delete</button><button class="btn" id="sbProps"><i class="fa-solid fa-sliders"></i>Style</button></div>
 <div id="toast" role="status"></div>
-<div id="busy" class="hide"><span id="busyT">Working…</span></div>
+<div id="busy" class="hide" role="status" aria-live="polite"><div class="bcard"><div class="bspin"></div><div class="btx"><span id="busyT">Working…</span><small id="busyS"></small><div class="bbar"><i id="busyB"></i></div></div></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
@@ -667,7 +606,8 @@ const TOOLS=[['select','arrow-pointer','Select','v'],['edit-text','i-cursor','Ed
 const DRAG=['highlight','underline','strike','redact','blur','rect','ellipse','line','arrow'];
 const pg=()=>S.pages[S.cur];
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2400)}
-function busy(m){$('busy').classList.toggle('hide',!m);$('busyT').textContent=m||''}
+function busy(m,sub,pct){$('busy').classList.toggle('hide',!m);$('busyT').textContent=m||'';$('busyS').textContent=m&&sub?sub:'';$('busyB').parentElement.style.display=m&&pct!=null?'block':'none';$('busyB').style.width=(pct||0)+'%'}
+const tick=()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(r,0)));
 
 // ---------- toolbar ----------
 TOOLS.forEach(([id,ic,lab,k],i)=>{
@@ -704,10 +644,10 @@ const drop=$('drop');
 window.addEventListener('drop',e=>{const f=[...e.dataTransfer.files].find(f=>/pdf$/i.test(f.type)||/\.pdf$/i.test(f.name));f?openFile(f):toast('Please drop a PDF file')});
 
 async function openFile(file){
-  busy('Opening PDF…');
+  busy('Opening PDF…',file.name);await tick();
   try{
     if(S.pages.length&&dirty()&&!confirm('Open a different file? Unsaved changes to the current one will be lost.')){busy();return}
-    busy('Opening PDF…');
+    busy('Opening PDF…',file.name);
     const buf=await file.arrayBuffer();
     S.bytes=new Uint8Array(buf.slice(0));
     const old=S.pdf;S.pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0))}).promise;if(old)try{old.destroy()}catch(e){}
@@ -716,7 +656,7 @@ async function openFile(file){
     S.name=file.name;$('fname').value=file.name;$('fname').disabled=false;$('empty').classList.add('hide');
     const first=await S.pdf.getPage(1);
     S.zoom=Math.min(1.5,Math.max(.25,($('stage').clientWidth-padW())/first.getViewport({scale:1}).width));
-    for(let i=1;i<=S.pdf.numPages;i++)await createPage(i);
+    for(let i=1;i<=S.pdf.numPages;i++){busy('Opening PDF…',`${file.name} · page ${i} of ${S.pdf.numPages}`,(i-1)/S.pdf.numPages*100);await createPage(i)}
     updZoom();updNav();$('stage').focus({preventScroll:true});toast(`Opened ${file.name} · ${S.pdf.numPages} page${S.pdf.numPages>1?'s':''}`);
   }catch(err){console.error(err);toast('Could not open that file. Is it a valid PDF?');$('empty').classList.toggle('hide',!!S.pages.length)}
   busy();
@@ -835,11 +775,11 @@ function onUp(p){
 }
 
 // ---------- blur ----------
-function blurImg(p,b){
+function blurImg(p,b,strong){
   const r=2,c=document.createElement('canvas');c.width=Math.max(2,Math.round(b.w*r));c.height=Math.max(2,Math.round(b.h*r));
   const cx=c.getContext('2d');
   [p.bg,p.fc.lowerCanvasEl].forEach(src=>{const k=src.width/p.w;cx.drawImage(src,b.x*k,b.y*k,b.w*k,b.h*k,0,0,c.width,c.height)});
-  const f=3+S.stroke*1.5;let cw=Math.max(2,Math.round(c.width/f)),ch=Math.max(2,Math.round(c.height/f));
+  const f=Math.max(3+S.stroke*1.5,strong?c.height/3:0);let cw=Math.max(2,Math.round(c.width/f)),ch=Math.max(2,Math.round(c.height/f));
   let t=document.createElement('canvas');t.width=cw;t.height=ch;t.getContext('2d').drawImage(c,0,0,cw,ch);
   while(cw<c.width){const nw=Math.min(c.width,cw*2),nh=Math.min(c.height,ch*2),n=document.createElement('canvas');n.width=nw;n.height=nh;
     const x=n.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';x.drawImage(t,0,0,nw,nh);t=n;cw=nw;ch=nh}
@@ -916,17 +856,19 @@ function outName(){return($('fname').value||S.name).replace(/\.pdf$/i,'')+'-edit
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
 async function savePdf(){
   if(!S.bytes)return toast('Open a PDF first');
-  busy('Building your PDF…');
+  busy('Saving PDF…',outName());await tick();
   try{
-    const out=await buildPdf();download(new Blob([out],{type:'application/pdf'}),outName());toast('Saved '+outName());S.pages.forEach(p=>p.savedHi=p.hi);S.delDirty=false;
+    const out=await buildPdf((d,t)=>{busy('Saving PDF…',`${outName()} · page ${d} of ${t}`,d/t*100);return tick()});download(new Blob([out],{type:'application/pdf'}),outName());toast('Saved '+outName());S.pages.forEach(p=>p.savedHi=p.hi);S.delDirty=false;
   }catch(e){console.error(e);toast('Save failed: '+(e.message||'unknown error'))}
   busy();
 }
-async function buildPdf(){
+async function buildPdf(onProg){
   if(!S.bytes)throw new Error('Open a PDF first');
   const{PDFDocument}=PDFLib,doc=await PDFDocument.load(S.bytes,{ignoreEncryption:true});
     S.pages.forEach(p=>{p.fc.discardActiveObject();p.fc.renderAll()});
-    for(const p of [...S.pages].sort((a,b)=>b.num-a.num)){
+    const order=[...S.pages].sort((a,b)=>b.num-a.num);let done=0;
+    for(const p of order){
+      if(onProg)await onProg(++done,order.length);
       const i=p.num-1;
       if(p.deleted){doc.removePage(i);continue}
       const fc=p.fc,objs=fc.getObjects();if(!objs.length)continue;
@@ -1087,17 +1029,18 @@ function markAll(kind){
   const by=new Map();S.matches.forEach(m=>{if(!by.has(m.p))by.set(m.p,[]);by.get(m.p).push(...m.rects)});
   by.forEach((rs,p)=>{
     S.restoring=true;
-    rs.forEach(r=>{const o=new fabric.Rect({left:r.x-1,top:r.y,width:r.w+2,height:r.h,fill:kind==='redact'?'#000':'#ffe14d',opacity:kind==='redact'?1:.45});if(kind==='redact')o.customType='redaction';p.fc.add(o)});
+    if(kind==='blur'){rs.forEach(r=>{const b={x:Math.max(0,r.x-2),y:Math.max(0,r.y-1),w:r.w+4,h:r.h+2};p.fc.add(blurImg(p,b,true))})}
+    else rs.forEach(r=>{const o=new fabric.Rect({left:r.x-1,top:r.y,width:r.w+2,height:r.h,fill:kind==='redact'?'#000':'#ffe14d',opacity:kind==='redact'?1:.45});if(kind==='redact')o.customType='redaction';p.fc.add(o)});
     S.restoring=false;p.hist=p.hist.slice(0,p.hi+1);p.hist.push(p.fc.toJSON2());p.hi=p.hist.length-1;p.fc.requestRenderAll();
   });
-  updNav();toast(`${kind==='redact'?'Redacted':'Highlighted'} ${S.matches.length} match${S.matches.length>1?'es':''}`);
+  updNav();toast(`${kind==='redact'?'Redacted':kind==='blur'?'Blurred':'Highlighted'} ${S.matches.length} match${S.matches.length>1?'es':''}`);
 }
 let sT;$('sq').oninput=()=>{clearTimeout(sT);sT=setTimeout(runSearch,200)};
 ['sCase','sWw','sRx','sCur'].forEach(id=>$(id).onchange=runSearch);$('sRng').oninput=()=>{clearTimeout(sT);sT=setTimeout(runSearch,300)};
 $('sq').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();gotoMatch(S.mi+(e.shiftKey?-1:1))}e.stopPropagation()};
 $('sRng').onkeydown=e=>e.stopPropagation();
 $('sPrev').onclick=()=>gotoMatch(S.mi-1);$('sNext').onclick=()=>gotoMatch(S.mi+1);
-$('sHl').onclick=()=>markAll('highlight');$('sRd').onclick=()=>markAll('redact');
+$('sHl').onclick=()=>markAll('highlight');$('sRd').onclick=()=>markAll('redact');$('sBl').onclick=()=>markAll('blur');
 renderResults();
 
 // ---------- theme ----------
