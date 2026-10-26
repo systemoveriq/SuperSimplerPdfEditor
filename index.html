@@ -712,13 +712,21 @@ async function createPage(num){
   setTool(S.tool);
   await renderPage(p);
 }
+// Keep total canvas memory bounded so 30+ page files don't exhaust the browser's canvas budget
+function pageDpr(p){
+  const want=window.devicePixelRatio||1,n=Math.max(1,S.pdf?S.pdf.numPages:S.pages.length),mob=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const budget=(mob?110e6:280e6)/4;                // bytes -> pixels for all background canvases combined
+  const perPage=budget/n,area=(p.w*S.zoom)*(p.h*S.zoom);
+  return Math.max(.5,Math.min(want,Math.sqrt(perPage/area)));
+}
 async function renderPage(p){
-  const z=S.zoom,dpr=window.devicePixelRatio||1,vp=p.pgj.getViewport({scale:z*dpr});
+  const z=S.zoom,dpr=pageDpr(p),vp=p.pgj.getViewport({scale:z*dpr});
   p.div.style.width=p.w*z+'px';p.div.style.height=p.h*z+'px';
   p.bg.width=vp.width;p.bg.height=vp.height;p.bg.style.width=p.w*z+'px';p.bg.style.height=p.h*z+'px';
   p.fc.setDimensions({width:p.w*z,height:p.h*z});p.fc.setZoom(z);
   if(p.task)try{p.task.cancel()}catch(e){}
-  p.task=p.pgj.render({canvasContext:p.bg.getContext('2d'),viewport:vp});
+  const bcx=p.bg.getContext('2d');if(!bcx){toast('Low memory: some pages may look blurry');return}
+  p.task=p.pgj.render({canvasContext:bcx,viewport:vp});
   try{await p.task.promise}catch(e){return}
   const tc=p.th.querySelector('canvas');tc.width=200;tc.height=200*p.h/p.w;
   tc.getContext('2d').drawImage(p.bg,0,0,tc.width,tc.height);
@@ -884,30 +892,47 @@ async function savePdf(){
   }catch(e){console.error(e);toast('Save failed: '+(e.message||'unknown error'))}
   busy();
 }
+// Helpers for large-document saving: bounded canvas sizes, no base64 strings, memory released per page
+const SAVE_LIMITS=()=>{const low=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.deviceMemory&&navigator.deviceMemory<=4);return{maxPx:low?4e6:9e6,maxSide:low?3000:4800}};
+function fitScale(w,h,want){const L=SAVE_LIMITS();return Math.max(.5,Math.min(want,L.maxSide/Math.max(w,h),Math.sqrt(L.maxPx/(w*h))))}
+function canvasBlob(c,type,q){return new Promise((res,rej)=>{let done=false;const t=setTimeout(()=>{if(!done)rej(new Error('Image encoding timed out'))},60000);try{c.toBlob(b=>{done=true;clearTimeout(t);b?res(b):rej(new Error('Not enough memory to encode a page'))},type,q)}catch(e){clearTimeout(t);rej(e)}})}
+async function canvasBytes(c,type,q){const b=await canvasBlob(c,type,q);return new Uint8Array(await b.arrayBuffer())}
+function freeCanvas(c){try{c.width=0;c.height=0}catch(e){}}
 async function buildPdf(onProg){
   if(!S.bytes)throw new Error('Open a PDF first');
   const{PDFDocument}=PDFLib,doc=await PDFDocument.load(S.bytes,{ignoreEncryption:true});
-    S.pages.forEach(p=>{p.fc.discardActiveObject();p.fc.renderAll()});
-    const order=[...S.pages].sort((a,b)=>b.num-a.num);let done=0;
-    for(const p of order){
-      if(onProg)await onProg(++done,order.length);
-      const i=p.num-1;
-      if(p.deleted){doc.removePage(i);continue}
-      const fc=p.fc,objs=fc.getObjects();if(!objs.length)continue;
-      const overlay=fc.toDataURL({format:'png',multiplier:2/S.zoom});
-      if(objs.some(o=>o.customType==='redaction'||o.customType==='blur')){
-        // True redaction: flatten page + overlay into an image so hidden text is removed
-        const vp=p.pgj.getViewport({scale:2}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;
-        const cx=c.getContext('2d');await p.pgj.render({canvasContext:cx,viewport:vp}).promise;
-        const im=new Image();await new Promise(r=>{im.onload=r;im.src=overlay});cx.drawImage(im,0,0,c.width,c.height);
-        const img=await doc.embedPng(c.toDataURL('image/png'));
+  S.pages.forEach(p=>{try{p.fc.discardActiveObject();p.fc.renderAll()}catch(e){}});
+  const order=[...S.pages].sort((a,b)=>b.num-a.num);let done=0;
+  for(const p of order){
+    if(onProg)await onProg(++done,order.length);else await tick();
+    const i=p.num-1;
+    if(p.deleted){doc.removePage(i);continue}
+    const fc=p.fc,objs=fc.getObjects();if(!objs.length)continue;
+    const flat=objs.some(o=>o.customType==='redaction'||o.customType==='blur');
+    let oc=null,fc2=null;
+    try{
+      // 1) overlay layer (annotations only), at a capped size, encoded straight to bytes
+      const sc=fitScale(p.w,p.h,flat?2:2);
+      oc=fc.toCanvasElement(sc/S.zoom);
+      if(flat){
+        // True redaction: flatten page + overlay into one image so hidden text is really removed
+        const vp=p.pgj.getViewport({scale:sc});
+        fc2=document.createElement('canvas');fc2.width=Math.ceil(vp.width);fc2.height=Math.ceil(vp.height);
+        const cx=fc2.getContext('2d');if(!cx)throw new Error('Not enough memory to flatten page '+p.num);
+        cx.fillStyle='#fff';cx.fillRect(0,0,fc2.width,fc2.height);
+        await p.pgj.render({canvasContext:cx,viewport:vp}).promise;
+        cx.drawImage(oc,0,0,fc2.width,fc2.height);
+        freeCanvas(oc);oc=null;
+        const img=await doc.embedJpg(await canvasBytes(fc2,'image/jpeg',.92));
         const np=doc.insertPage(i,[p.w,p.h]);np.drawImage(img,{x:0,y:0,width:p.w,height:p.h});doc.removePage(i+1);
       }else{
-        const img=await doc.embedPng(overlay),page=doc.getPage(i),{width,height}=page.getSize();
+        const img=await doc.embedPng(await canvasBytes(oc,'image/png')),page=doc.getPage(i),{width,height}=page.getSize();
         page.drawImage(img,{x:0,y:0,width,height});
       }
-    }
-    return await doc.save();
+    }finally{if(oc)freeCanvas(oc);if(fc2)freeCanvas(fc2)}
+    await tick();   // let the browser reclaim memory + keep the progress bar alive
+  }
+  return await doc.save({useObjectStreams:true,addDefaultPage:false});
 }
 $('save').onclick=$('xPdf').onclick=()=>{$('mExp').classList.add('hide');savePdf()};
 $('xPng').onclick=async()=>{const p=pg();if(!p)return toast('Open a PDF first');$('mExp').classList.add('hide');
