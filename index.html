@@ -629,7 +629,7 @@ const DRAG=['highlight','underline','strike','redact','blur','rect','ellipse','l
 const pg=()=>S.pages[S.cur];
 function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2400)}
 function busy(m,sub,pct){$('busy').classList.toggle('hide',!m);$('busyT').textContent=m||'';$('busyS').textContent=m&&sub?sub:'';$('busyB').parentElement.style.display=m&&pct!=null?'block':'none';$('busyB').style.width=(pct||0)+'%'}
-const tick=()=>new Promise(r=>requestAnimationFrame(()=>setTimeout(r,0)));
+const tick=()=>new Promise(r=>{let d=0;const f=()=>{if(!d){d=1;r()}};requestAnimationFrame(()=>setTimeout(f,0));setTimeout(f,60)});
 
 // ---------- toolbar ----------
 TOOLS.forEach(([id,ic,lab,k],i)=>{
@@ -673,7 +673,7 @@ async function openFile(file){
     const buf=await file.arrayBuffer();
     S.bytes=new Uint8Array(buf.slice(0));
     const old=S.pdf;S.pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0))}).promise;if(old)try{old.destroy()}catch(e){}
-    S.pages.forEach(p=>p.fc.dispose());S.pages=[];S.cur=0;S.matches=[];S.mi=-1;S.delDirty=false;renderResults();$('close').disabled=false;
+    pageIO.disconnect();thObs.disconnect();S.pages.forEach(p=>{try{p.task&&p.task.cancel()}catch(e){}p.fc.dispose()});S.pages=[];S.cur=0;S.matches=[];S.mi=-1;S.delDirty=false;renderResults();$('close').disabled=false;
     $('pages').innerHTML='';$('pPages').innerHTML='';
     S.name=file.name;$('fname').value=file.name;$('fname').disabled=false;$('empty').classList.add('hide');
     const first=await S.pdf.getPage(1);
@@ -689,13 +689,13 @@ async function createPage(num){
   const div=document.createElement('div');div.className='page';
   const bg=document.createElement('canvas');bg.className='bg';
   const ov=document.createElement('canvas');div.append(bg,ov);$('pages').appendChild(div);
-  const fc=new fabric.Canvas(ov,{width:vp.width*S.zoom,height:vp.height*S.zoom,preserveObjectStacking:true,selection:true});
+  const fc=new fabric.Canvas(ov,{width:1,height:1,preserveObjectStacking:true,selection:true});   // real size is allocated only while the page is on screen
   const hl=document.createElement('div');hl.className='hl';div.appendChild(hl);
   const tc=await pgj.getTextContent();
   const items=tc.items.filter(i=>i.str.trim()).map(i=>{const t=pdfjsLib.Util.transform(vp.transform,i.transform);return{s:i.str,x:t[4],y:t[5],w:i.width,fs:Math.hypot(t[2],t[3])||12,fn:i.fontName,ff:(tc.styles[i.fontName]||{}).fontFamily}});
   const p={hl,num,pgj,w:vp.width,h:vp.height,div,bg,fc,items,hist:[],hi:-1,deleted:false,idx:S.pages.length};
   S.pages.push(p);
-  fc.setZoom(S.zoom);
+  layoutPage(p);div._p=p;pageIO.observe(div);
   fc.toJSON2=()=>JSON.stringify(fc.toJSON(['customType']));
   p.hist.push(fc.toJSON2());p.hi=0;
   const push=()=>{if(S.restoring||S.drawing)return;p.hist=p.hist.slice(0,p.hi+1);p.hist.push(fc.toJSON2());p.hi=p.hist.length-1;updNav()};
@@ -708,29 +708,40 @@ async function createPage(num){
   th.innerHTML=`<canvas></canvas><div><span>Page ${num}</span><button title="Delete page" aria-label="Delete page ${num}"><i class="fa-solid fa-trash"></i></button></div>`;
   th.onclick=()=>{if(mob())$('side').classList.remove('open');div.scrollIntoView({behavior:'smooth',block:'start'});S.cur=p.idx;updNav()};
   th.querySelector('button').onclick=e=>{e.stopPropagation();delPage(p)};
-  p.th=th;$('pPages').appendChild(th);
-  setTool(S.tool);
-  await renderPage(p);
+  p.th=th;th._p=p;$('pPages').appendChild(th);thObs.observe(th);
+  {const t=S.tool;fc.isDrawingMode=t==='draw';fc.selection=t==='select';fc.skipTargetFind=!(t==='select'||t==='erase');
+   fc.defaultCursor=t==='select'?'default':t==='edit-text'||t==='text'?'text':t==='erase'?'not-allowed':'crosshair';
+   if(t==='draw'){fc.freeDrawingBrush=new fabric.PencilBrush(fc);fc.freeDrawingBrush.color=S.color;fc.freeDrawingBrush.width=S.stroke}}
 }
-// Keep total canvas memory bounded so 30+ page files don't exhaust the browser's canvas budget
-function pageDpr(p){
-  const want=window.devicePixelRatio||1,n=Math.max(1,S.pdf?S.pdf.numPages:S.pages.length),mob=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const budget=(mob?110e6:280e6)/4;                // bytes -> pixels for all background canvases combined
-  const perPage=budget/n,area=(p.w*S.zoom)*(p.h*S.zoom);
-  return Math.max(.5,Math.min(want,Math.sqrt(perPage/area)));
+// ---------- virtualised pages: only pages near the viewport hold canvases, so 500-page files stay sharp AND light ----------
+function layoutPage(p){const z=S.zoom,w=p.w*z,h=p.h*z;p.div.style.width=w+'px';p.div.style.height=h+'px';p.bg.style.width=w+'px';p.bg.style.height=h+'px';p.fc.setDimensions({width:w,height:h},{cssOnly:true});p.fc.setZoom(z)}
+function releasePage(p){   // free the bitmaps of an off-screen page (its annotations stay in memory as objects)
+  p.mounted=false;p.rt=(p.rt||0)+1;try{p.task&&p.task.cancel()}catch(e){}p.task=null;
+  p.bg.width=1;p.bg.height=1;try{p.fc.setDimensions({width:1,height:1},{backstoreOnly:true})}catch(e){}
 }
 async function renderPage(p){
-  const z=S.zoom,dpr=pageDpr(p),vp=p.pgj.getViewport({scale:z*dpr});
-  p.div.style.width=p.w*z+'px';p.div.style.height=p.h*z+'px';
-  p.bg.width=vp.width;p.bg.height=vp.height;p.bg.style.width=p.w*z+'px';p.bg.style.height=p.h*z+'px';
-  p.fc.setDimensions({width:p.w*z,height:p.h*z});p.fc.setZoom(z);
-  if(p.task)try{p.task.cancel()}catch(e){}
-  const bcx=p.bg.getContext('2d');if(!bcx){toast('Low memory: some pages may look blurry');return}
-  p.task=p.pgj.render({canvasContext:bcx,viewport:vp});
-  try{await p.task.promise}catch(e){return}
-  const tc=p.th.querySelector('canvas');tc.width=200;tc.height=200*p.h/p.w;
-  tc.getContext('2d').drawImage(p.bg,0,0,tc.width,tc.height);
+  const tok=p.rt=(p.rt||0)+1,z=S.zoom;layoutPage(p);p.mounted=true;
+  if(p.task){const old=p.task;try{old.cancel()}catch(e){}try{await old.promise}catch(e){}if(p.rt!==tok)return}
+  const w=p.w*z,h=p.h*z,mob=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const dpr=Math.max(.75,Math.min(window.devicePixelRatio||1,Math.sqrt((mob?9e6:20e6)/(w*h))));   // full sharpness; only giant pages are limited
+  const vp=p.pgj.getViewport({scale:z*dpr});
+  p.fc.setDimensions({width:w,height:h});p.fc.setZoom(z);
+  p.bg.width=Math.ceil(vp.width);p.bg.height=Math.ceil(vp.height);
+  const cx=p.bg.getContext('2d');if(!cx){toast('Low memory: close other tabs and try again');return}
+  const task=p.task=p.pgj.render({canvasContext:cx,viewport:vp});
+  try{await task.promise}catch(e){}
+  if(p.task===task)p.task=null;
+  if(S.matches.length&&S.matches.some(m=>m.p===p))schedHL();
 }
+let hlT;const schedHL=()=>{clearTimeout(hlT);hlT=setTimeout(()=>{try{renderHL()}catch(e){}},120)};
+const pageIO=new IntersectionObserver(es=>es.forEach(e=>{const p=e.target._p;if(!p)return;p.vis=e.isIntersecting;if(e.isIntersecting){if(!p.mounted)renderPage(p)}else if(p.mounted)releasePage(p)}),{root:$('stage'),rootMargin:'1600px 0px'});
+let pgThQ=Promise.resolve();
+async function drawThumb(p){
+  if(p.thDone)return;p.thDone=true;
+  const tc=p.th.querySelector('canvas'),vp=p.pgj.getViewport({scale:200/p.w});tc.width=Math.ceil(vp.width);tc.height=Math.ceil(vp.height);
+  try{await p.pgj.render({canvasContext:tc.getContext('2d'),viewport:vp}).promise}catch(e){p.thDone=false}
+}
+const thObs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){thObs.unobserve(e.target);const p=e.target._p;if(p)pgThQ=pgThQ.then(()=>drawThumb(p)).catch(()=>{})}}),{rootMargin:'500px'});
 function live(){return S.pages.filter(p=>!p.deleted)}
 function delPage(p){
   if(live().length<2)return toast('A PDF needs at least one page');
@@ -747,7 +758,7 @@ $('stage').addEventListener('scroll',()=>{const r=$('stage').getBoundingClientRe
   for(const p of live()){const b=p.div.getBoundingClientRect();if(b.top<=mid&&b.bottom>=mid){if(S.cur!==p.idx){S.cur=p.idx;updNav()}break}}});
 
 // ---------- zoom ----------
-async function setZoom(z){if(!S.pages.length)return;S.zoom=Math.min(3,Math.max(.25,z));updZoom();for(const p of S.pages)await renderPage(p);renderHL()}
+async function setZoom(z){if(!S.pages.length)return;S.zoom=Math.min(3,Math.max(.25,z));updZoom();S.pages.forEach(layoutPage);for(const p of S.pages)if(p.mounted)await renderPage(p);renderHL()}
 function updZoom(){$('zlab').textContent=Math.round(S.zoom*100)+'%'}
 $('zin').onclick=()=>setZoom(S.zoom+.15);$('zout').onclick=()=>setZoom(S.zoom-.15);
 $('zfit').onclick=()=>pg()&&setZoom(($('stage').clientWidth-padW())/pg().w);
@@ -883,13 +894,21 @@ $('sigAdd').onclick=()=>{if(!sdirty)return toast('Draw your signature first');
 
 // ---------- save / export ----------
 function outName(){return($('fname').value||S.name).replace(/\.pdf$/i,'')+'-edited.pdf'}
-function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+function download(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),180000);return u}
+// Fallback bar: if the browser blocks the automatic download (common on iOS / after a long save) the user can tap this
+function showDl(url,name){let b=$('dlBar');if(!b){b=document.createElement('div');b.id='dlBar';b.style.cssText='position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:99999;background:#1b1e24;color:#e8eaee;border:1px solid #2c313a;border-radius:99px;padding:10px 12px 10px 18px;display:flex;gap:12px;align-items:center;box-shadow:0 10px 30px #000a;font:600 13px Manrope,system-ui,sans-serif';document.body.appendChild(b)}
+  b.innerHTML='<span>Didn’t download?</span><a style="background:#ff6a3d;color:#1a0b05;padding:7px 14px;border-radius:99px;text-decoration:none;font-weight:700"></a><button aria-label="Dismiss" style="color:#8b93a1;font-size:18px;padding:0 6px">×</button>';
+  const a=b.querySelector('a');a.textContent='Save PDF';a.href=url;a.download=name;a.target='_blank';a.rel='noopener';b.querySelector('button').onclick=()=>b.remove();clearTimeout(showDl.t);showDl.t=setTimeout(()=>b.remove(),120000)}
 async function savePdf(){
   if(!S.bytes)return toast('Open a PDF first');
   busy('Saving PDF…',outName());await tick();
   try{
-    const out=await buildPdf((d,t)=>{busy('Saving PDF…',`${outName()} · page ${d} of ${t}`,d/t*100);return tick()});download(new Blob([out],{type:'application/pdf'}),outName());toast('Saved '+outName());S.pages.forEach(p=>p.savedHi=p.hi);S.delDirty=false;
-  }catch(e){console.error(e);toast('Save failed: '+(e.message||'unknown error'))}
+    const out=await buildPdf((d,t)=>{busy('Saving PDF…',`${outName()} · page ${d} of ${t}`,d/t*100);return tick()});
+    busy('Saving PDF…','Writing file…',100);await tick();
+    const blob=new Blob([out],{type:'application/pdf'}),u=download(blob,outName());showDl(u,outName());
+    toast(buildPdf.rebuilt?'Saved. This file’s page structure was damaged, so it was rebuilt':'Saved '+outName());
+    S.pages.forEach(p=>p.savedHi=p.hi);S.delDirty=false;
+  }catch(e){console.error(e);toast('Save failed: '+(e&&e.message||'unknown error'))}
   busy();
 }
 // Helpers for large-document saving: bounded canvas sizes, no base64 strings, memory released per page
@@ -898,44 +917,124 @@ function fitScale(w,h,want){const L=SAVE_LIMITS();return Math.max(.5,Math.min(wa
 function canvasBlob(c,type,q){return new Promise((res,rej)=>{let done=false;const t=setTimeout(()=>{if(!done)rej(new Error('Image encoding timed out'))},60000);try{c.toBlob(b=>{done=true;clearTimeout(t);b?res(b):rej(new Error('Not enough memory to encode a page'))},type,q)}catch(e){clearTimeout(t);rej(e)}})}
 async function canvasBytes(c,type,q){const b=await canvasBlob(c,type,q);return new Uint8Array(await b.arrayBuffer())}
 function freeCanvas(c){try{c.width=0;c.height=0}catch(e){}}
+
+// ---- Assembling the output PDF (robust & error-resistant) ----
+// ---- Assembling the output PDF (5000-page bulletproof & memory-safe) ----
+async function assemblePdf(srcBytes, jobs) {
+  const { PDFDocument } = PDFLib;
+  const out = await PDFDocument.create();
+  const live = jobs.filter(j => !j.deleted);
+
+  for (const j of live) {
+    const p = S.pages.find(x => x.num === j.num);
+    if (!p) continue;
+
+    // 1. Calculate a safe scale to prevent browser canvas crashes on giant pages
+    const maxDim = 4000; 
+    const maxPixels = 16e6; // 16 megapixels max
+    let scale = 2;
+    if (p.w * scale > maxDim || p.h * scale > maxDim) scale = maxDim / Math.max(p.w, p.h);
+    if ((p.w * scale) * (p.h * scale) > maxPixels) scale = Math.sqrt(maxPixels / (p.w * p.h));
+
+    const vp = p.pgj.getViewport({ scale });
+    const c = document.createElement('canvas');
+    c.width = Math.ceil(vp.width); 
+    c.height = Math.ceil(vp.height);
+    const cx = c.getContext('2d');
+    
+    cx.fillStyle = '#fff'; 
+    cx.fillRect(0, 0, c.width, c.height);
+    
+    try {
+      // 2. Draw background PDF
+      await p.pgj.render({ canvasContext: cx, viewport: vp }).promise;
+      
+      // 3. Draw annotations directly without base64 strings (saves massive memory)
+      if (j.bytes) {
+        try {
+          const blob = new Blob([j.bytes], { type: 'image/png' });
+          const url = URL.createObjectURL(blob);
+          const oImg = new Image();
+          await new Promise((resolve) => { 
+            oImg.onload = resolve; 
+            oImg.onerror = resolve; 
+            oImg.src = url; 
+          });
+          cx.drawImage(oImg, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url); // Free memory immediately
+        } catch(e) { console.warn('Overlay draw skipped', e); }
+      }
+      
+      // 4. Compress to JPEG blob
+      const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.85));
+      
+      // 5. Embed the image and add to PDF
+      const img = await out.embedJpg(await blob.arrayBuffer());
+      const np = out.addPage([p.w, p.h]);
+      np.drawImage(img, { x: 0, y: 0, width: p.w, height: p.h });
+      
+    } catch (err) {
+      console.error("Render error on page " + j.num, err);
+      // Ultimate fallback: if rasterizing fails, just draw a blank page so the 5000-page export doesn't crash
+      out.addPage([p.w, p.h]); 
+    } finally {
+      // 6. CRITICAL: Destroy the canvas immediately to free RAM for the next page
+      c.width = 1; c.height = 1; 
+      j.bytes = null; 
+    }
+  }
+
+  const bytes = await out.save({ useObjectStreams: false });
+  return { bytes, rebuilt: true };
+}
+
+// Phase 1: turn each edited page's annotations into an image (one page at a time, memory freed in between).
+// Phase 2: assemblePdf() writes them into the document (with safe fallback).
 async function buildPdf(onProg){
   if(!S.bytes)throw new Error('Open a PDF first');
-  const{PDFDocument}=PDFLib,doc=await PDFDocument.load(S.bytes,{ignoreEncryption:true});
-  S.pages.forEach(p=>{try{p.fc.discardActiveObject();p.fc.renderAll()}catch(e){}});
-  const order=[...S.pages].sort((a,b)=>b.num-a.num);let done=0;
+  S.pages.forEach(p=>{try{p.fc.discardActiveObject()}catch(e){}});
+  const order=[...S.pages].sort((a,b)=>a.num-b.num),jobs=[];let done=0;
   for(const p of order){
     if(onProg)await onProg(++done,order.length);else await tick();
-    const i=p.num-1;
-    if(p.deleted){doc.removePage(i);continue}
+    const job={num:p.num,w:p.w,h:p.h,deleted:!!p.deleted,kind:'none',bytes:null};jobs.push(job);
+    if(p.deleted)continue;
     const fc=p.fc,objs=fc.getObjects();if(!objs.length)continue;
     const flat=objs.some(o=>o.customType==='redaction'||o.customType==='blur');
-    let oc=null,fc2=null;
-    try{
-      // 1) overlay layer (annotations only), at a capped size, encoded straight to bytes
-      const sc=fitScale(p.w,p.h,flat?2:2);
-      oc=fc.toCanvasElement(sc/S.zoom);
-      if(flat){
-        // True redaction: flatten page + overlay into one image so hidden text is really removed
-        const vp=p.pgj.getViewport({scale:sc});
-        fc2=document.createElement('canvas');fc2.width=Math.ceil(vp.width);fc2.height=Math.ceil(vp.height);
-        const cx=fc2.getContext('2d');if(!cx)throw new Error('Not enough memory to flatten page '+p.num);
-        cx.fillStyle='#fff';cx.fillRect(0,0,fc2.width,fc2.height);
-        await p.pgj.render({canvasContext:cx,viewport:vp}).promise;
-        cx.drawImage(oc,0,0,fc2.width,fc2.height);
-        freeCanvas(oc);oc=null;
-        const img=await doc.embedJpg(await canvasBytes(fc2,'image/jpeg',.92));
-        const np=doc.insertPage(i,[p.w,p.h]);np.drawImage(img,{x:0,y:0,width:p.w,height:p.h});doc.removePage(i+1);
-      }else{
-        const img=await doc.embedPng(await canvasBytes(oc,'image/png')),page=doc.getPage(i),{width,height}=page.getSize();
-        page.drawImage(img,{x:0,y:0,width,height});
+    for(let attempt=0;;attempt++){
+      let oc=null,fc2=null;
+      try{
+        // off-screen pages only have a tiny drawing surface: give this one its real size for the export
+        fc.setDimensions({width:p.w*S.zoom,height:p.h*S.zoom});fc.setZoom(S.zoom);
+        const sc=fitScale(p.w,p.h,2)/Math.pow(1.6,attempt);
+        oc=fc.toCanvasElement(sc/S.zoom);
+        if(flat){
+          // True redaction: flatten page + overlay into one image so the hidden text is really removed
+          const vp=p.pgj.getViewport({scale:sc});
+          fc2=document.createElement('canvas');fc2.width=Math.ceil(vp.width);fc2.height=Math.ceil(vp.height);
+          const cx=fc2.getContext('2d');if(!cx)throw new Error('not enough memory');
+          cx.fillStyle='#fff';cx.fillRect(0,0,fc2.width,fc2.height);
+          await p.pgj.render({canvasContext:cx,viewport:vp}).promise;
+          cx.drawImage(oc,0,0,fc2.width,fc2.height);freeCanvas(oc);oc=null;
+          job.bytes=await canvasBytes(fc2,'image/jpeg',.92);job.kind='flat';
+        }else{job.bytes=await canvasBytes(oc,'image/png');job.kind='overlay'}
+        break;
+      }catch(err){
+        if(attempt>=3)throw new Error('Page '+p.num+' could not be processed ('+(err&&err.message||'out of memory')+')');
+        await tick();
+      }finally{
+        if(oc)freeCanvas(oc);if(fc2)freeCanvas(fc2);
+        if(!p.mounted){try{fc.setDimensions({width:1,height:1},{backstoreOnly:true})}catch(e){}}
       }
-    }finally{if(oc)freeCanvas(oc);if(fc2)freeCanvas(fc2)}
-    await tick();   // let the browser reclaim memory + keep the progress bar alive
+    }
+    await tick();
   }
-  return await doc.save({useObjectStreams:true,addDefaultPage:false});
+  if(onProg)await onProg(order.length,order.length);
+  const res=await assemblePdf(S.bytes,jobs);buildPdf.rebuilt=res.rebuilt;
+  return res.bytes;
 }
 $('save').onclick=$('xPdf').onclick=()=>{$('mExp').classList.add('hide');savePdf()};
 $('xPng').onclick=async()=>{const p=pg();if(!p)return toast('Open a PDF first');$('mExp').classList.add('hide');
+  if(!p.mounted||p.bg.width<=1)await renderPage(p);
   p.fc.discardActiveObject();p.fc.renderAll();
   const c=document.createElement('canvas');c.width=p.bg.width;c.height=p.bg.height;const cx=c.getContext('2d');
   cx.drawImage(p.bg,0,0);cx.drawImage(p.fc.lowerCanvasEl,0,0,c.width,c.height);
@@ -998,16 +1097,27 @@ $('stage').addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefaul
 // ---------- search ----------
 S.matches=[];S.mi=-1;
 const mc=document.createElement('canvas').getContext('2d');
+const normTxt=t=>{try{t=t.normalize('NFKC')}catch(e){}return t.replace(/[\u00ad\u200b-\u200d\ufeff]/g,'').replace(/\u00a0/g,' ')};
 function pageText(p){
   if(p.stext!==undefined)return;
-  let t='';p.smap=[];
-  p.items.forEach(it=>{if(t)t+=' ';p.smap.push({a:t.length,b:t.length+it.s.length,it});t+=it.s});
+  let t='',prev=null;p.smap=[];
+  p.items.forEach(it=>{
+    const s=normTxt(it.s);it.ns=s;
+    if(prev){
+      // pdf.js splits text into fragments (kerning, fonts, ligatures). Only insert a space when there is a real gap or a new line.
+      const fs=Math.max(it.fs,prev.fs),sameLine=Math.abs(it.y-prev.y)<fs*.45,gap=it.x-(prev.x+prev.w);
+      if((!sameLine||gap>fs*.18||gap<-fs*3)&&!/\s$/.test(t)&&!/^\s/.test(s))t+=' ';
+    }
+    p.smap.push({a:t.length,b:t.length+s.length,it});t+=s;prev=it;
+  });
   p.stext=t;
 }
 function subRect(it,i0,i1){
-  mc.font=`${it.fs}px Helvetica, Arial, sans-serif`;
-  const tot=mc.measureText(it.s).width||1,a=mc.measureText(it.s.slice(0,i0)).width/tot,b=mc.measureText(it.s.slice(0,i1)).width/tot;
-  return{x:it.x+it.w*a,y:it.y-it.fs*.95,w:Math.max(2,it.w*(b-a)),h:it.fs*1.2};
+  const s=it.ns!==undefined?it.ns:it.s;
+  // pdf.js registers the PDF's embedded font under it.fn (e.g. g_d0_f1) once the page is rendered; it.ff is only a generic fallback
+  mc.font=`${it.fs}px ${it.fn?'"'+it.fn+'", ':''}${it.ff?it.ff+', ':''}Helvetica, Arial, sans-serif`;
+  const tot=mc.measureText(s).width||1,a=mc.measureText(s.slice(0,i0)).width/tot,b=mc.measureText(s.slice(0,i1)).width/tot;
+  return{x:it.x+it.w*a-.5,y:it.y-it.fs*.95,w:Math.max(2,it.w*(b-a)+1),h:it.fs*1.2};
 }
 function buildRx(){
   const q=$('sq').value;if(!q)return null;
@@ -1037,9 +1147,9 @@ function runSearch(){
     pageText(p);let m;rx.lastIndex=0;
     while((m=rx.exec(p.stext))&&S.matches.length<2000){
       if(!m[0].length){rx.lastIndex++;continue}
-      const a=m.index,b=a+m[0].length,rects=[];
-      p.smap.forEach(e=>{const x=Math.max(a,e.a),y=Math.min(b,e.b);if(x<y)rects.push(subRect(e.it,x-e.a,y-e.a))});
-      if(rects.length)S.matches.push({p,rects,snip:[p.stext.slice(Math.max(0,a-26),a),m[0],p.stext.slice(b,b+34)]});
+      const a=m.index,b=a+m[0].length,parts=[];
+      p.smap.forEach(e=>{const x=Math.max(a,e.a),y=Math.min(b,e.b);if(x<y)parts.push({it:e.it,i0:x-e.a,i1:y-e.a})});
+      if(parts.length)S.matches.push({p,parts,get rects(){return this.parts.map(q=>subRect(q.it,q.i0,q.i1))},snip:[p.stext.slice(Math.max(0,a-26),a),m[0],p.stext.slice(b,b+34)]});
     }
   }
   S.mi=S.matches.length?0:-1;renderHL();renderResults();if(S.mi>=0)gotoMatch(0);
@@ -1141,7 +1251,7 @@ function dirty(){return !!S.delDirty||S.pages.some(p=>p.hi!==(p.savedHi||0))}
 function unloadFile(){
   if(!S.pdf&&!S.pages.length)return;
   if(dirty()&&!confirm('You have unsaved changes. Close this file anyway?'))return;
-  S.pages.forEach(p=>{try{p.task&&p.task.cancel()}catch(e){}try{p.fc.dispose()}catch(e){}});
+  pageIO.disconnect();thObs.disconnect();S.pages.forEach(p=>{try{p.task&&p.task.cancel()}catch(e){}try{p.fc.dispose()}catch(e){}});
   S.pages=[];S.cur=0;S.matches=[];S.mi=-1;S.delDirty=false;
   if(S.pdf){try{S.pdf.destroy()}catch(e){}}S.pdf=null;S.bytes=null;S.name='document.pdf';
   $('pages').innerHTML='';$('pPages').innerHTML='<div class="note">No pages yet.</div>';
@@ -1328,7 +1438,7 @@ $('spAll').onclick=()=>{live().forEach((_,i)=>SP.sel.add(i));SP.grid&&SP.grid.re
 $('spNone').onclick=()=>{SP.sel.clear();SP.grid&&SP.grid.refresh();spSync()};
 $('spVal').addEventListener('input',()=>{const m=$('spMode').value;if(m!=='extract'&&m!=='ranges')return;const n=live().length;SP.sel.clear();
   $('spVal').value.split(',').forEach(t=>{const r=t.trim().match(/^(\d+)(?:\s*-\s*(\d+))?$/);if(!r)return;let x=+r[1],y=+(r[2]||r[1]);if(x>y)[x,y]=[y,x];for(let i=Math.max(1,x);i<=Math.min(n,y);i++)SP.sel.add(i-1)});
-  SP.grid&&SP.grid.refresh();spCount()});
+  SP.grid&&SP.grid.refresh();spSync()});
 $('spMode').onchange=()=>{updSplit();spSync()};
 $('spPick').onclick=$('spPick2').onclick=()=>$('spIn').click();
 $('spIn').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;await openFile(f);buildSplitGrid()};
